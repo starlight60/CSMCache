@@ -806,7 +806,7 @@ public class RedisCacheManager implements CacheManager {
 
     }
 
-    @Override
+
     public String makeKey(final String spName, final DAMParam[] param) {
         if (spName==null||spName.length()<1) throw new RuntimeException("the stored procedure name should be exist");
         final StringBuffer keyInSB = new StringBuffer();
@@ -821,12 +821,12 @@ public class RedisCacheManager implements CacheManager {
         return keyInSB.toString();
     }
 
-    @Override
+
     public void addCachePolicy(String spName, CachePolicy policy) {
         cacheTargetList.put(spName, policy);
     }
 
-    @Override
+
     public void addCachePolicy(String spName, boolean isCacheTarget, boolean isMultiRow, int maxCount) {
 
         CachePolicy policy = new CachePolicy();
@@ -838,7 +838,7 @@ public class RedisCacheManager implements CacheManager {
         cacheTargetList.put(spName, policy);
     }
 
-    @Override
+
     public void addCachePolicy(String spName, boolean isCacheTarget, boolean isMultiRow, int maxCount, int timeToLive) {
 
         CachePolicy policy = new CachePolicy();
@@ -850,18 +850,18 @@ public class RedisCacheManager implements CacheManager {
         cacheTargetList.put(spName, policy);
     }
 
-    @Override
+
     public void delCachePolicy(String spName) {
 
         cacheTargetList.remove(spName);
     }
 
-    @Override
+
     public Map getCachePolicy() {
         return cacheTargetList;
     }
 
-    @Override
+
     public boolean isCacheOn() {
         return cacheOn.get();
     }

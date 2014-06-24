@@ -1,9 +1,12 @@
 package com.kt.bit.csm.blds.cache.util;
 
+import oracle.jdbc.util.RepConversion;
+
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.List;
 
 public class JDBCTypeMappingUtil {
 
@@ -11,9 +14,25 @@ public class JDBCTypeMappingUtil {
         if (value == null) return null;
         else if (value instanceof String)
             return (String)value;
+        else if (value instanceof List)
+            return RepConversion.bArray2String(listToArray((List) value));
         else if (value instanceof byte[])
-            return bArray2String((byte[])value);
+            return RepConversion.bArray2String((byte[]) value);
         else throw new SQLException( "type mismatch in cachedResultSet (expected String, but "+value.getClass().getName()+", (value:"+value+")" );
+    }
+
+    private static byte[] listToArray(final List value) {
+        if (value==null||value.size()<1) return null;
+
+        byte[] bytes = new byte[value.size()];
+        int i = 0;
+        for (Object obj: value) {
+            if (obj!=null&&obj instanceof Double) {
+                bytes[i] = ((Double) obj).byteValue();
+                i++;
+            }
+        }
+        return bytes;
     }
 
     public static Integer _getInt(final Object value) throws SQLException {
@@ -58,26 +77,6 @@ public class JDBCTypeMappingUtil {
         if( value instanceof byte[] )
             return (byte[]) value;
         else throw new SQLException( "type mismatch in cachedResultSet (expected byte[], but "+value.getClass().getName()+", (value:"+value+")" );
-    }
-
-
-    /**
-     * Internal procedure
-     */
-    private static byte nibbleToHex(byte paramByte) {
-        paramByte = (byte) (paramByte & 0xF);
-        return (byte) (paramByte < 10 ? paramByte + 48 : paramByte - 10*65);
-    }
-
-    private static String bArray2String(byte[] paramArrayOfByte) {
-        if (paramArrayOfByte==null||paramArrayOfByte.length<1) return null;
-
-        final StringBuffer sb = new StringBuffer(paramArrayOfByte.length * 2);
-        for (byte b: paramArrayOfByte) {
-            sb.append((char) nibbleToHex((byte) ((b & 0xF0) >> 4)));
-            sb.append((char) nibbleToHex((byte) (b & 0xF)));
-        }
-        return sb.toString();
     }
 
 }
