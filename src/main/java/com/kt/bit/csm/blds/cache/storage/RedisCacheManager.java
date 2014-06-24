@@ -857,10 +857,14 @@ public class RedisCacheManager implements CacheManager {
     }
 
     @Override
-    public Map getCachePolicy() {
+    public Map getCachePolicies() {
         return cacheTargetList;
     }
 
+    public Object getCachePolicy(String spName) {
+        return cacheTargetList.get(spName);
+    }
+    
     @Override
     public boolean isCacheOn() {
         return cacheOn.get();

@@ -8,10 +8,13 @@ package com.kt.bit.csm.blds.cache;
  * To change this template use File | Settings | File Templates.
  */
 public class CachePolicy {
+	
     private boolean cacheTarget = true;
     private int maxCount;
     private boolean multiRow;
-
+    private String fetchSize = CacheFetchConstants.FETCH_SIZE;
+	private int timeToLive;
+    
     public boolean isCacheTarget() {
         return cacheTarget;
     }
@@ -44,5 +47,12 @@ public class CachePolicy {
         this.multiRow = multiRow;
     }
 
-    private int timeToLive;
+    public String getFetchSize() {
+		return fetchSize;
+	}
+
+	public void setFetchSize(String fetchSize) {
+		this.fetchSize = fetchSize;
+	}
+
 }
