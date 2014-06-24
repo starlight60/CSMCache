@@ -2,10 +2,7 @@ package com.kt.bit.csm.blds.cache.storage;
 
 
 import com.github.jedis.lock.JedisLock;
-import com.kt.bit.csm.blds.cache.CacheColumn;
-import com.kt.bit.csm.blds.cache.CacheManager;
-import com.kt.bit.csm.blds.cache.CachePolicy;
-import com.kt.bit.csm.blds.cache.CachedResultSet;
+import com.kt.bit.csm.blds.cache.*;
 import com.kt.bit.csm.blds.utility.CSMResultSet;
 import com.kt.bit.csm.blds.utility.*;
 import redis.clients.jedis.Jedis;
@@ -28,6 +25,11 @@ public class RedisCacheManager implements CacheManager {
     public ConcurrentHashMap cacheTargetList = null;
     public static RedisCacheManager instance = null;
     public static final String configFilePath = "redis-config.properties";     // The file should be within classpath
+    private CachePutQueue queue = null;
+
+    private int queueSize = 10;
+    private int minPoolSize = 10;
+    private int maxPoolSize = 20;
 
     public static RedisCacheManager getInstance() throws IOException {
         if(instance == null){
@@ -58,6 +60,7 @@ public class RedisCacheManager implements CacheManager {
         properties.load(Thread.currentThread().getContextClassLoader().getResourceAsStream(configFilePath));
         this.host = properties.getProperty("redis.host");
         this.port = Integer.valueOf(properties.getProperty("redis.port"));
+
         try{
             pool = new JedisPool(new JedisPoolConfig(), this.host, this.port);
             cacheTargetList = new ConcurrentHashMap();
@@ -65,6 +68,7 @@ public class RedisCacheManager implements CacheManager {
             if(!this.ping().equalsIgnoreCase("PONG")){
                 throw new Exception("Fail to connect to redis cache");
             }
+            queue = new CachePutQueue(this.queueSize, this.minPoolSize, this.maxPoolSize);
         }catch(Exception e){
             // Redis Cache 접속이실패하는 경우 Cache 를 사용하지 않도록 설정함.
             this.setCacheOn(false);
@@ -82,6 +86,8 @@ public class RedisCacheManager implements CacheManager {
             if(!this.ping().equalsIgnoreCase("PONG")){
                 throw new Exception("Fail to connect to redis cache");
             }
+            queue = new CachePutQueue(this.queueSize, this.minPoolSize, this.maxPoolSize);
+
         }catch(Exception e){
             // Redis Cache 접속이실패하는 경우 Cache 를 사용하지 않도록 설정함.
             this.setCacheOn(false);
@@ -443,6 +449,22 @@ public class RedisCacheManager implements CacheManager {
 
     }
 
+    public void asynchSet(String key, String value, int ttl){
+        queue.addCacheWork(new RedisCacheCommand(CacheCommand.CACHE_WORK_MODE_PUT, key, value, ttl));
+    }
+
+    public void asynchSet(String key, byte[] value, int ttl){
+        queue.addCacheWork(new RedisCacheCommand(CacheCommand.CACHE_WORK_MODE_PUT, key.getBytes(), value, ttl));
+    }
+
+    public void asynchSet(String key, String value){
+        queue.addCacheWork(new RedisCacheCommand(CacheCommand.CACHE_WORK_MODE_PUT, key, value));
+    }
+
+    public void asynchSet(String key, byte[] value){
+        queue.addCacheWork(new RedisCacheCommand(CacheCommand.CACHE_WORK_MODE_PUT, key.getBytes(), value));
+    }
+
     /**
      * Added Date : 2014.05.20
      * ---------------------------
@@ -564,7 +586,7 @@ public class RedisCacheManager implements CacheManager {
                 rowCount++;
             }
 
-            this.set(key, DataFormmater.toJson(cachedResultSet));
+            this.asynchSet(key, DataFormmater.toJson(cachedResultSet));
 
             return cachedResultSet;
         } catch (SQLException e) {

@@ -4,9 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.kt.bit.csm.blds.cache.CachedResultSet;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -49,6 +47,7 @@ public class DataFormmater {
         try {
             ObjectOutputStream out = new ObjectOutputStream(bos);
             out.writeObject(obj);
+            out.close();
             data = bos.toByteArray();
         } catch (IOException e) {
             e.printStackTrace();
@@ -56,5 +55,17 @@ public class DataFormmater {
 
         return data;
 
+    }
+
+    private CachedResultSet getObjectFromByteArray(byte[] bytes) throws IOException, ClassNotFoundException {
+        InputStream is = null;
+        ObjectInputStream ois = null;
+        CachedResultSet resultSet = null;
+
+        is = new ByteArrayInputStream(bytes);
+        ois = new ObjectInputStream(is);
+        resultSet = (CachedResultSet) ois.readObject();
+
+        return resultSet;
     }
 }
