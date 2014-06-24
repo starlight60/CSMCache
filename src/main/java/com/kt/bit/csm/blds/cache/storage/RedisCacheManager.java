@@ -58,18 +58,34 @@ public class RedisCacheManager implements CacheManager {
         properties.load(Thread.currentThread().getContextClassLoader().getResourceAsStream(configFilePath));
         this.host = properties.getProperty("redis.host");
         this.port = Integer.valueOf(properties.getProperty("redis.port"));
+        try{
+            pool = new JedisPool(new JedisPoolConfig(), this.host, this.port);
+            cacheTargetList = new ConcurrentHashMap();
 
-        pool = new JedisPool(new JedisPoolConfig(), this.host, this.port);
-
-        cacheTargetList = new ConcurrentHashMap();
+            if(!this.ping().equalsIgnoreCase("PONG")){
+                throw new Exception("Fail to connect to redis cache");
+            }
+        }catch(Exception e){
+            // Redis Cache 접속이실패하는 경우 Cache 를 사용하지 않도록 설정함.
+            this.setCacheOn(false);
+        }
     }
 
     private RedisCacheManager(String host, int port) {
         this.host = host;
         this.port = port;
 
-        pool = new JedisPool(new JedisPoolConfig(), this.host, this.port);
-        cacheTargetList = new ConcurrentHashMap();
+        try{
+            pool = new JedisPool(new JedisPoolConfig(), this.host, this.port);
+            cacheTargetList = new ConcurrentHashMap();
+
+            if(!this.ping().equalsIgnoreCase("PONG")){
+                throw new Exception("Fail to connect to redis cache");
+            }
+        }catch(Exception e){
+            // Redis Cache 접속이실패하는 경우 Cache 를 사용하지 않도록 설정함.
+            this.setCacheOn(false);
+        }
     }
 
     /**
