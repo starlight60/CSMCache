@@ -18,7 +18,7 @@ public class AsynchCachePutTest {
 
     private String   redis_host = "127.0.0.1";
     private int      redis_port = 6379;
-    private int dataSize = 1000;
+    private int dataSize = 5;
 
 
     @Test
@@ -37,7 +37,7 @@ public class AsynchCachePutTest {
 
             for( int i = 0; i< dataSize; i++){
                 key = String.valueOf(key+i);
-                cm.asynchSet(key,value);
+                cm.asynchSet(key, value);
             }
 
         } catch (Exception e) {

@@ -68,6 +68,7 @@ public class RedisCacheCommand implements CacheCommand {
         Jedis jedis = null;
         RedisCacheManager cacheManager = null;
         try {
+
             cacheManager =  RedisCacheManager.getInstance();
             jedis = cacheManager.borrow();
 
