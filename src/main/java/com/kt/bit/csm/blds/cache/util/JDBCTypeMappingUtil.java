@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Calendar;
 import java.util.List;
 
 public class JDBCTypeMappingUtil {
@@ -18,7 +19,7 @@ public class JDBCTypeMappingUtil {
             return RepConversion.bArray2String(listToArray((List) value));
         else if (value instanceof byte[])
             return RepConversion.bArray2String((byte[]) value);
-        else throw new SQLException( "type mismatch in cachedResultSet (expected String, but "+value.getClass().getName()+", (value:"+value+")" );
+        else throw new SQLException( "type mismatch in cachedResultSet (expected String, but "+value.getClass().getName()+", (value:"+value+"))" );
     }
 
     private static byte[] listToArray(final List value) {
@@ -43,7 +44,7 @@ public class JDBCTypeMappingUtil {
             return ((Double) value).intValue();
         } else if (value instanceof Integer)
             return (Integer) value;
-        else throw new SQLException( "type mismatch in cachedResultSet (expected int, but "+value.getClass().getName()+", (value:"+value+")" );
+        else throw new SQLException( "type mismatch in cachedResultSet (expected int, but "+value.getClass().getName()+", (value:"+value+"))" );
     }
 
     public static Long _getLong(final Object value) throws SQLException {
@@ -56,25 +57,30 @@ public class JDBCTypeMappingUtil {
             return ((Integer) value).longValue();
         else if (value instanceof Double)
             return ((Double) value).longValue();
-        else throw new SQLException( "type mismatch in cachedResultSet (expected Long, but "+value.getClass().getName()+", (value:"+value+")" );
+        else throw new SQLException( "type mismatch in cachedResultSet (expected Long, but "+value.getClass().getName()+", (value:"+value+"))" );
     }
 
     public static Date _getDate(final Object value) throws SQLException {
         if (value == null) return null;
         // From JDBC
         else if( value instanceof Timestamp)
-            return new Date(((Timestamp)value).getTime());
+            return new Date(trimAfterMidnight(new Date(((Timestamp) value).getTime())));
         else if( value instanceof Date)
             return (Date)value;
         // From JSON
         else if (value instanceof String) {
             try {
-                return new Date(Long.valueOf((String)value));
+                return new Date(trimAfterMidnight(new Date(Long.valueOf((String) value))));
             } catch (NumberFormatException e) {
-                throw new SQLException( "this is not timestamp type (value:"+value+")" );
+                throw new SQLException( "this is not timestamp type (value:"+value+"))" );
             }
         }
-        else throw new SQLException( "type mismatch in cachedResultSet (expected Date, but "+value.getClass().getName()+", (value:"+value+")" );
+        else throw new SQLException( "type mismatch in cachedResultSet (expected Date, but "+value.getClass().getName()+", (value:"+value+"))" );
+    } 
+    private static long trimAfterMidnight(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        return (date.getTime() - date.getTime() % 86400000) - cal.getTimeZone().getRawOffset();
     }
 
     public static Timestamp _getTimestamp(final Object value) throws SQLException {
@@ -89,15 +95,15 @@ public class JDBCTypeMappingUtil {
             try {
                 return new Timestamp(Long.valueOf((String)value));
             } catch (NumberFormatException e) {
-                throw new SQLException( "this is not timestamp type (value:"+value+")" );
+                throw new SQLException( "this is not timestamp type (value:"+value+"))" );
             }
-        } else throw new SQLException( "type mismatch in cachedResultSet (expected Timestamp, but "+value.getClass().getName()+", (value:"+value+")" );
+        } else throw new SQLException( "type mismatch in cachedResultSet (expected Timestamp, but "+value.getClass().getName()+", (value:"+value+"))" );
     }
 
     public static byte[] _getBytes(final Object value) throws SQLException {
         if( value instanceof byte[] )
             return (byte[]) value;
-        else throw new SQLException( "type mismatch in cachedResultSet (expected byte[], but "+value.getClass().getName()+", (value:"+value+")" );
+        else throw new SQLException( "type mismatch in cachedResultSet (expected byte[], but "+value.getClass().getName()+", (value:"+value+"))" );
     }
 
 }

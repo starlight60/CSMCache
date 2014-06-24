@@ -44,5 +44,5 @@ public class CachePolicy {
         this.multiRow = multiRow;
     }
 
-    private int timeToLive;
+    private int timeToLive = 10;
 }

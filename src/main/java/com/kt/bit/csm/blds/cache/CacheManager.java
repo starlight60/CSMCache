@@ -37,7 +37,7 @@ public interface CacheManager {
 
     public CachedResultSet getResultSet(String key);
 
-    public CachedResultSet saveResultSetToCache(String key, CSMResultSet result);
+    public CachedResultSet saveResultSetToCache(String spName, String key, CSMResultSet result);
 
     public String makeKey(final String spName, final DAMParam[] param);
 

@@ -547,48 +547,12 @@ public class RedisCacheManager implements CacheManager {
         return resultSet;
     }
 
-    public CachedResultSet saveResultSetToCache(String key, CSMResultSet result){
+    public CachedResultSet saveResultSetToCache(String spName, String key, CSMResultSet result) {
 
         assert result instanceof DatabaseResultSet;
+        assert spName != null && spName.length()>0;
 
         DatabaseResultSet resultInCSM = (DatabaseResultSet) result;
-
-        try {
-            ResultSetMetaData meta = result.getMetaData();
-            CachedResultSet cachedResultSet = new CachedResultSet();
-            int colCount = meta.getColumnCount();
-            int rowCount = 0;
-
-            while( result.next() ){
-                CacheColumn[] cacheColumns = new CacheColumn[colCount];
-                for(int i=1; i <= colCount;i++){
-                    cacheColumns[i-1] = new CacheColumn(meta.getColumnName(i), meta.getColumnType(i), resultInCSM.getObject(i));
-                }
-                cachedResultSet.addRow(cacheColumns, rowCount);
-                rowCount++;
-            }
-
-            this.set(key, formmater.toJson(cachedResultSet));
-
-            return cachedResultSet;
-        } catch (SQLException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    public CachedResultSet saveResultSetToCache(String spName, String key, CSMResultSet result){
-
-        assert result instanceof DatabaseResultSet;
-
-        DatabaseResultSet resultInCSM = (DatabaseResultSet) result;
-
-        if (spName == null || spName.equals("")) {
-            saveResultSetToCache(key, resultInCSM);
-        }
 
         try {
             ResultSetMetaData meta = result.getMetaData();

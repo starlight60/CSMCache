@@ -31,8 +31,6 @@ public class PerfomanceTest extends AbstractBenchmark {
     private static final DAMParam[] param = { new DAMParam("in_year", sales_year, OracleTypes.VARCHAR),
             new DAMParam("in_no", staff, OracleTypes.VARCHAR) };
 
-    public static Object[] expectedDataList = new Object[]{ "1    ", "A", "CEO", "CEO", "2007", 7000, 6500, 500 };
-
     @BeforeClass
     public static void callAndMakeCachedata() throws Exception {
         // Clean up cache if exists
@@ -48,7 +46,8 @@ public class PerfomanceTest extends AbstractBenchmark {
         DataAccessManager dam = new DataAccessManager();
         CSMResultSet rs = dam.executeStoredProcedureForQuery(spName, returnParamName, param);
 
-        assertTrue(rs instanceof DatabaseResultSet);
+        BasicTest.checkCachedRow(rs);
+
         rs.close();
 
     }
@@ -75,13 +74,14 @@ public class PerfomanceTest extends AbstractBenchmark {
         rs.next();
 
         int i = 1;
-        for (Object pv: expectedDataList) {
+        for (Object pv: BasicTest.expectedDataList) {
             if (pv instanceof String) {
                 assertEquals(pv, rs.getString(i));
             } else if (pv instanceof Integer) {
                 assertEquals(((Integer) pv).intValue(), rs.getInt(i));
             } else if (pv instanceof Date) {
-                assertEquals(pv, rs.getDate(i));
+                Date a = rs.getDate(i);
+                assertEquals(pv, a);
             } else if (pv instanceof Long) {
                 assertEquals(((Long) pv).longValue(), rs.getLong(i));
             } else if (pv instanceof byte[]) {
@@ -122,7 +122,7 @@ public class PerfomanceTest extends AbstractBenchmark {
         rs.next();
 
         int i = 1;
-        for (Object pv: expectedDataList) {
+        for (Object pv: BasicTest.expectedDataList) {
             if (pv instanceof String) {
                 assertEquals(pv, rs.getString(i));
             } else if (pv instanceof Integer) {

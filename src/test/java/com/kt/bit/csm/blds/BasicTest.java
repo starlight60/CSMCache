@@ -28,7 +28,7 @@ public class BasicTest {
     private static final DAMParam[] param = { new DAMParam("in_year", sales_year, OracleTypes.VARCHAR),
             new DAMParam("in_no", staff, OracleTypes.VARCHAR) };
 
-    public static Object[] expectedDataList = new Object[]{ "1    ", "A", "CEO", "CEO", "2007", 7000, 6500, 500, "ABCD1234", new Timestamp(1051963364000L), new Date(1051963364000L) };
+    public static Object[] expectedDataList = new Object[]{ "1    ", "A", "CEO", "CEO", "2007", 7000, 6500, 500, "ABCD1234", new Timestamp(1051963364000L), new Date(1051887600000L) };
 
     @BeforeClass
     public static void callAndMakeCachedata() throws Exception {
@@ -64,7 +64,7 @@ public class BasicTest {
         rs.close();
     }
 
-    private static void checkCachedRow(CSMResultSet rs) throws SQLException {
+    public static void checkCachedRow(CSMResultSet rs) throws SQLException {
         assertTrue("Result is not CachedResultSet type", rs instanceof CachedResultSet);
         assertTrue("Row count must be 1, count:" + rs.getRowCount(), rs.getRowCount() == 1);
 
