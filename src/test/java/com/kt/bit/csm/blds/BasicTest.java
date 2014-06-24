@@ -28,7 +28,7 @@ public class BasicTest {
     private static final DAMParam[] param = { new DAMParam("in_year", sales_year, OracleTypes.VARCHAR),
             new DAMParam("in_no", staff, OracleTypes.VARCHAR) };
 
-    public static Object[] expectedDataList = new Object[]{ "1    ", "A", "CEO", "CEO", "2007", 7000, 6500, 500, "ABCD1234" };
+    public static Object[] expectedDataList = new Object[]{ "1    ", "A", "CEO", "CEO", "2007", 7000, 6500, 500, "ABCD1234", new Timestamp(1051963364000L), new Date(1051963364000L) };
 
     @BeforeClass
     public static void callAndMakeCachedata() throws Exception {
@@ -85,6 +85,7 @@ public class BasicTest {
             } else if (pv instanceof Timestamp) {
                 assertEquals(pv, rs.getTimestamp(i));
             }
+
             i++;
         }
     }

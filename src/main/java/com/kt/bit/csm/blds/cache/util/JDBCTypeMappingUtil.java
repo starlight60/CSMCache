@@ -61,16 +61,37 @@ public class JDBCTypeMappingUtil {
 
     public static Date _getDate(final Object value) throws SQLException {
         if (value == null) return null;
+        // From JDBC
+        else if( value instanceof Timestamp)
+            return new Date(((Timestamp)value).getTime());
         else if( value instanceof Date)
             return (Date)value;
+        // From JSON
+        else if (value instanceof String) {
+            try {
+                return new Date(Long.valueOf((String)value));
+            } catch (NumberFormatException e) {
+                throw new SQLException( "this is not timestamp type (value:"+value+")" );
+            }
+        }
         else throw new SQLException( "type mismatch in cachedResultSet (expected Date, but "+value.getClass().getName()+", (value:"+value+")" );
     }
 
     public static Timestamp _getTimestamp(final Object value) throws SQLException {
         if (value == null) return null;
-        else if( value instanceof Timestamp)
+        // From JDBC
+        else if (value instanceof Timestamp)
             return (Timestamp)value;
-        else throw new SQLException( "type mismatch in cachedResultSet (expected Timestamp, but "+value.getClass().getName()+", (value:"+value+")" );
+        else if (value instanceof Date)
+            return new Timestamp(((Date)value).getTime());
+        // From JSON
+        else if (value instanceof String) {
+            try {
+                return new Timestamp(Long.valueOf((String)value));
+            } catch (NumberFormatException e) {
+                throw new SQLException( "this is not timestamp type (value:"+value+")" );
+            }
+        } else throw new SQLException( "type mismatch in cachedResultSet (expected Timestamp, but "+value.getClass().getName()+", (value:"+value+")" );
     }
 
     public static byte[] _getBytes(final Object value) throws SQLException {

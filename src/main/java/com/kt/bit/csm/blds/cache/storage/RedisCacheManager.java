@@ -25,9 +25,10 @@ public class RedisCacheManager implements CacheManager {
     private int     port;
 
     private AtomicBoolean cacheOn = new AtomicBoolean(false);
-    public ConcurrentHashMap cacheTargetList = null;
+    public ConcurrentHashMap<String, CachePolicy> cacheTargetList = null;
     public static RedisCacheManager instance = null;
     public static final String configFilePath = "redis-config.properties";     // The file should be within classpath
+    private DataFormmater formmater;
 
     public static RedisCacheManager getInstance() throws IOException {
         if(instance == null){
@@ -53,6 +54,8 @@ public class RedisCacheManager implements CacheManager {
 
     private RedisCacheManager() throws IOException, NumberFormatException {
 
+        formmater = DataFormmater.getInstance();
+
         // Load basic properties
         Properties properties = new Properties();
         properties.load(Thread.currentThread().getContextClassLoader().getResourceAsStream(configFilePath));
@@ -69,6 +72,7 @@ public class RedisCacheManager implements CacheManager {
             // Redis Cache 접속이실패하는 경우 Cache 를 사용하지 않도록 설정함.
             this.setCacheOn(false);
         }
+
     }
 
     private RedisCacheManager(String host, int port) {
@@ -537,7 +541,7 @@ public class RedisCacheManager implements CacheManager {
     public CachedResultSet getResultSet(String key){
         CachedResultSet resultSet = null;
         if( exists(key) ){
-            return DataFormmater.fromJson(get(key));
+            return formmater.fromJson(get(key));
         }
 
         return resultSet;
@@ -564,7 +568,7 @@ public class RedisCacheManager implements CacheManager {
                 rowCount++;
             }
 
-            this.set(key, DataFormmater.toJson(cachedResultSet));
+            this.set(key, formmater.toJson(cachedResultSet));
 
             return cachedResultSet;
         } catch (SQLException e) {
@@ -636,7 +640,7 @@ public class RedisCacheManager implements CacheManager {
                 }
             }
 
-            this.set(key, DataFormmater.toJson(cachedResultSet), policy.getTimeToLive());
+            this.set(key, formmater.toJson(cachedResultSet), policy.getTimeToLive());
 
             return cachedResultSet;
 
