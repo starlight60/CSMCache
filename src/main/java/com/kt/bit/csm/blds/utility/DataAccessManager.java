@@ -142,7 +142,7 @@ public class DataAccessManager {
              *  3. csmResultSet return.
              */
             if(isCacheTarget && key != null){
-                this.cacheManager.saveResultSetToCache(key, sdpResultSet);
+                sdpResultSet = this.cacheManager.saveResultSetToCache(key, sdpResultSet);
             }
         }
 

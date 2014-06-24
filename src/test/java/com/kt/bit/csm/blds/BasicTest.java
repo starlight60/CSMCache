@@ -13,6 +13,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.sql.Date;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 
 import static org.junit.Assert.assertEquals;
@@ -45,7 +46,8 @@ public class BasicTest {
         DataAccessManager dam = new DataAccessManager();
         CSMResultSet rs = dam.executeStoredProcedureForQuery(spName, returnParamName, param);
 
-        assertTrue(rs instanceof DatabaseResultSet);
+        checkCachedRow(rs);
+
         rs.close();
 
     }
@@ -57,6 +59,12 @@ public class BasicTest {
         DataAccessManager dam = new DataAccessManager();
         CSMResultSet rs = dam.executeStoredProcedureForQuery(spName, returnParamName, param);
 
+        checkCachedRow(rs);
+
+        rs.close();
+    }
+
+    private static void checkCachedRow(CSMResultSet rs) throws SQLException {
         assertTrue("Result is not CachedResultSet type", rs instanceof CachedResultSet);
         assertTrue("Row count must be 1, count:" + rs.getRowCount(), rs.getRowCount() == 1);
 
@@ -79,8 +87,6 @@ public class BasicTest {
             }
             i++;
         }
-
-        rs.close();
     }
 
     @AfterClass
