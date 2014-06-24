@@ -3,11 +3,12 @@ package com.kt.bit.csm.blds.cache.storage;
 
 import com.github.jedis.lock.JedisLock;
 import com.kt.bit.csm.blds.cache.CacheColumn;
+import com.kt.bit.csm.blds.cache.CacheFetchConstants;
 import com.kt.bit.csm.blds.cache.CacheManager;
 import com.kt.bit.csm.blds.cache.CachePolicy;
 import com.kt.bit.csm.blds.cache.CachedResultSet;
-import com.kt.bit.csm.blds.utility.CSMResultSet;
 import com.kt.bit.csm.blds.utility.*;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -591,16 +592,18 @@ public class RedisCacheManager implements CacheManager {
             if (policy.isMultiRow()) {
 
                 if (policy.isMultiRow() && policy.getMaxCount() == 0) {
-                    throw new IllegalArgumentException(spName + " Policy is invalid.");
+                    throw new IllegalArgumentException(spName + " Fetch Size Policy is invalid.");
                 }
 
-                if (policy.getMaxCount() == -1) {
+                if (policy.getFetchSize().equals(CacheFetchConstants.FETCH_SIZE)) {
+                    totalCount = result.getFetchSize();
+                }
+                else if (policy.getFetchSize().equals(CacheFetchConstants.FETCH_ALL)) {
                     totalCount = -1;
                 }
                 else {
-                    totalCount = policy.getMaxCount();
+                    totalCount = 1;
                 }
-
 
             }
             else {
