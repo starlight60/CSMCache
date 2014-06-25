@@ -1,4 +1,4 @@
-package com.kt.bit.csm.blds.jmx;
+package com.kt.bit.csm.blds.cache.jmx;
 
 public interface CacheEnvConfigMBean {
 

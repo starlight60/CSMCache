@@ -42,17 +42,15 @@ public class CachedResultSet implements Serializable, CSMResultSet {
         cacheRows.add(new CacheRow(cacheColumns, rowIndex));
     }
 
-    @Override
     public int getDataSourceType() {
         return dataSourceType;
     }
 
-    @Override
     public void setDataSourceType(int dataSourceType) {
         this.dataSourceType = dataSourceType;
     }
 
-    @Override
+    
     public boolean next(){
         if(iterator == null)
             iterator = cacheRows.listIterator();
@@ -66,67 +64,67 @@ public class CachedResultSet implements Serializable, CSMResultSet {
             return false;
     }
 
-    @Override
+    
     public String getString(int idx) throws SQLException{
         return _getString(currentCacheRow.getColumn(idx).getValue());
     }
 
-    @Override
+    
     public String getString(String name) throws SQLException{
         return _getString(currentCacheRow.getColumn(name).getValue());
     }
 
-    @Override
+    
     public int getInt(int idx) throws SQLException{
         return _getInt(currentCacheRow.getColumn(idx).getValue());
     }
 
-    @Override
+    
     public int getInt(String name) throws SQLException{
         return _getInt(currentCacheRow.getColumn(name).getValue());
     }
 
-    @Override
+    
     public long getLong(int idx) throws SQLException{
         return _getLong(currentCacheRow.getColumn(idx).getValue());
     }
 
-    @Override
+    
     public long getLong(String name) throws SQLException{
         return _getLong(currentCacheRow.getColumn(name).getValue());
     }
 
-    @Override
+    
     public Date getDate(int idx) throws SQLException{
         return _getDate(currentCacheRow.getColumn(idx).getValue());
     }
 
-    @Override
+    
     public Date getDate(String name) throws SQLException{
         return _getDate(currentCacheRow.getColumn(name).getValue());
     }
 
-    @Override
+    
     public Timestamp getTimestamp(int idx) throws SQLException {
         return _getTimestamp(currentCacheRow.getColumn(idx).getValue());
     }
 
-    @Override
+    
     public Timestamp getTimestamp(String name) throws SQLException {
         return _getTimestamp(currentCacheRow.getColumn(name).getValue());
     }
 
-    @Override
+    
     public int getRow() throws SQLException {
         return currentIndex;
     }
 
-    @Override
+    
     public byte[] getBytes(String string) throws SQLException {
         return _getBytes(currentCacheRow.getColumn(string).getValue());
     }
 
-    @Override
+    
     public byte[] getBytes(int idx) throws SQLException {
         return _getBytes(currentCacheRow.getColumn(idx).getValue());
     }
@@ -136,27 +134,27 @@ public class CachedResultSet implements Serializable, CSMResultSet {
      * @return
      * @throws SQLException
      */
-    @Override
+    
     public ResultSetMetaData getMetaData() throws SQLException {
         return null;
     }
 
-    @Override
+    
     public void close() throws SQLException {
         cacheRows.clear();
     }
 
-    @Override
+    
     public boolean last(){
         return !iterator.hasNext();
     }
 
-    @Override
+    
     public int getRowCount(){
         return cacheRows.size();
     }
 
-    @Override
+    
     public int getFetchSize() throws SQLException {
         throw new SQLException("not supported");
     }

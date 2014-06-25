@@ -43,12 +43,12 @@ public class DatabaseResultSet implements CSMResultSet {
         this.cs = cs;
     }
 
-    @Override
+    
     public int getDataSourceType() {
         return dataSourceType;
     }
 
-    @Override
+    
     public void setDataSourceType(int dataSourceType) {
         this.dataSourceType = dataSourceType;
     }
@@ -60,7 +60,7 @@ public class DatabaseResultSet implements CSMResultSet {
 		
 	@exception java.sql.SQLException - Database exception
 	**************************************************************************/
-    @Override
+    
 	public void close() throws SQLException {
         rs.close();
         cs.close();
@@ -68,7 +68,7 @@ public class DatabaseResultSet implements CSMResultSet {
         cs = null;
 	}
 
-    @Override
+    
     public int getRowCount() throws SQLException {
         return rs.getRow();
     }
@@ -81,7 +81,7 @@ public class DatabaseResultSet implements CSMResultSet {
 	@return boolean
 	@exception java.sql.SQLException - Database exception
 	**************************************************************************/
-    @Override
+    
 	public boolean next() throws SQLException {
         return rs.next();
 	}
@@ -95,7 +95,7 @@ public class DatabaseResultSet implements CSMResultSet {
 	@return int
 	@exception java.sql.SQLException - Database exception
 	**************************************************************************/
-    @Override
+    
 	public int getInt(int i) throws SQLException {
         return rs.getInt(i);
 	}
@@ -109,7 +109,7 @@ public class DatabaseResultSet implements CSMResultSet {
 	@return String
 	@exception java.sql.SQLException - Database exception
 	**************************************************************************/
-    @Override
+    
 	public String getString(int i) throws SQLException {
         return rs.getString(i);
 	}
@@ -123,7 +123,7 @@ public class DatabaseResultSet implements CSMResultSet {
 	@return long
 	@exception java.sql.SQLException - Database exception
 	**************************************************************************/
-    @Override
+    
 	public long getLong(int i) throws SQLException {
         return rs.getLong(i);
 	}
@@ -137,7 +137,7 @@ public class DatabaseResultSet implements CSMResultSet {
 	@return long
 	@exception java.sql.SQLException - Database exception
 	**************************************************************************/
-    @Override
+    
 	public long getLong(String string) throws SQLException {
         return rs.getLong(string);
 	}
@@ -151,7 +151,7 @@ public class DatabaseResultSet implements CSMResultSet {
 	@return String
 	@exception java.sql.SQLException - Database exception
 	**************************************************************************/
-    @Override
+    
 	public String getString(String string) throws SQLException {
         return rs.getString(string);
 	}
@@ -165,32 +165,32 @@ public class DatabaseResultSet implements CSMResultSet {
 	@return int
 	@exception java.sql.SQLException - Database exception
 	**************************************************************************/
-    @Override
+    
 	public int getInt(String string) throws SQLException {
         return rs.getInt(string);
 	}
 
-    @Override
+    
 	public Date getDate(String string) throws SQLException {
         return rs.getDate(string);
 	}
 
-    @Override
+    
 	public Date getDate(int i) throws SQLException {
         return rs.getDate(i);
 	}
 
-    @Override
+    
 	public Timestamp getTimestamp(String string) throws SQLException {
         return rs.getTimestamp(string);
 	}
 
-    @Override
+    
 	public Timestamp getTimestamp(int i) throws SQLException {
         return rs.getTimestamp(i);
 	}
 
-    @Override
+    
     public int getFetchSize() throws SQLException {
         return rs.getFetchSize();
     }
@@ -204,22 +204,22 @@ public class DatabaseResultSet implements CSMResultSet {
         return rs.getObject(string);
     }
 
-    @Override
+    
 	public int getRow() throws SQLException {
 		return rs.getRow();
 	}
 
-    @Override
+    
 	public boolean last() throws SQLException {
 		return rs.last();
 	}
 
-    @Override
+    
 	public byte[] getBytes(String string) throws SQLException {
 		return rs.getBytes(string);
 	}
 
-    @Override
+    
     public byte[] getBytes(int idx) throws SQLException {
         return rs.getBytes(idx);
     }

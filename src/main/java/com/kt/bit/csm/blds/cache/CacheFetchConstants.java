@@ -1,6 +1,6 @@
 package com.kt.bit.csm.blds.cache;
 
-public class CacheFetchConstants {
+public final class CacheFetchConstants {
 
 	public static final String FETCH_ONE = "one";
 	public static final String FETCH_ALL = "all";

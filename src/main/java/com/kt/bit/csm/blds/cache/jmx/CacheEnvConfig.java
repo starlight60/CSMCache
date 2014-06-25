@@ -1,4 +1,4 @@
-package com.kt.bit.csm.blds.jmx;
+package com.kt.bit.csm.blds.cache.jmx;
 
 import java.io.IOException;
 
@@ -9,7 +9,7 @@ public class CacheEnvConfig implements CacheEnvConfigMBean {
 
 	public CacheEnvConfig() {}
 
-	@Override
+	
 	public void setCacheOn(boolean flag) {
 		
 		try {
@@ -21,7 +21,7 @@ public class CacheEnvConfig implements CacheEnvConfigMBean {
 		
 	}
 
-	@Override
+	
 	public boolean getCacheOn() {
 		
 		try {
@@ -35,7 +35,7 @@ public class CacheEnvConfig implements CacheEnvConfigMBean {
 		
 	}
 	
-	@Override
+	
 	public void setCacheQueueSize(int size) {
 
 		CacheEnvironments env = CacheEnvironments.getInstance();
@@ -43,7 +43,7 @@ public class CacheEnvConfig implements CacheEnvConfigMBean {
 		
 	}
 	
-	@Override
+	
 	public int getCacheQueueSize() {
 
 		CacheEnvironments env = CacheEnvironments.getInstance();
@@ -51,7 +51,7 @@ public class CacheEnvConfig implements CacheEnvConfigMBean {
 		
 	}
 	
-	@Override
+	
 	public void setCacheMinPoolSize(int size) {
 
 		CacheEnvironments env = CacheEnvironments.getInstance();
@@ -59,7 +59,7 @@ public class CacheEnvConfig implements CacheEnvConfigMBean {
 		
 	}
 
-	@Override
+	
 	public int getCacheMinPoolSize() {
 		
 		CacheEnvironments env = CacheEnvironments.getInstance();
@@ -67,7 +67,7 @@ public class CacheEnvConfig implements CacheEnvConfigMBean {
 		
 	}
 	
-	@Override
+	
 	public void setCacheMaxPoolSize(int size) {
 
 		CacheEnvironments env = CacheEnvironments.getInstance();
@@ -75,7 +75,7 @@ public class CacheEnvConfig implements CacheEnvConfigMBean {
 		
 	}
 
-	@Override
+	
 	public int getCacheMaxPoolSize() {
 		
 		CacheEnvironments env = CacheEnvironments.getInstance();
@@ -83,7 +83,7 @@ public class CacheEnvConfig implements CacheEnvConfigMBean {
 		
 	}
 	
-	@Override
+	
 	public void setTotalSettings(boolean flag, int workers, int queueSize, int minPoolSize, int maxPoolSize) {
 
 		try {
@@ -101,7 +101,7 @@ public class CacheEnvConfig implements CacheEnvConfigMBean {
 		
 	}
 
-	@Override
+	
 	public String getTotalSettings() {
 		
 		StringBuilder sb = new StringBuilder();

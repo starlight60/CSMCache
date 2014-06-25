@@ -7,6 +7,7 @@ import com.kt.bit.csm.blds.cache.CacheFetchConstants;
 import com.kt.bit.csm.blds.cache.CacheManager;
 import com.kt.bit.csm.blds.cache.CachePolicy;
 import com.kt.bit.csm.blds.cache.CachedResultSet;
+import com.kt.bit.csm.blds.cache.config.CacheConfigManager;
 import com.kt.bit.csm.blds.utility.*;
 
 import redis.clients.jedis.Jedis;
@@ -29,6 +30,7 @@ public class RedisCacheManager implements CacheManager {
     public ConcurrentHashMap cacheTargetList = null;
     public static RedisCacheManager instance = null;
     public static final String configFilePath = "redis-config.properties";     // The file should be within classpath
+    public static final String cacheConfigFilePath = "cache-config.properties";     // The file should be within classpath
 
     public static RedisCacheManager getInstance() throws IOException {
         if(instance == null){
@@ -60,6 +62,10 @@ public class RedisCacheManager implements CacheManager {
         this.host = properties.getProperty("redis.host");
         this.port = Integer.valueOf(properties.getProperty("redis.port"));
 
+        // Load Cache On The Fly Properties File
+		CacheConfigManager manager = CacheConfigManager.getInstance();
+		manager.setPropertyChangeListener(cacheConfigFilePath, 100);
+        
         pool = new JedisPool(new JedisPoolConfig(), this.host, this.port);
 
         cacheTargetList = new ConcurrentHashMap();
@@ -809,7 +815,7 @@ public class RedisCacheManager implements CacheManager {
 
     }
 
-    @Override
+    
     public String makeKey(final String spName, final DAMParam[] param) {
         if (spName==null||spName.length()<1) throw new RuntimeException("the stored procedure name should be exist");
         final StringBuffer keyInSB = new StringBuffer();
@@ -824,12 +830,12 @@ public class RedisCacheManager implements CacheManager {
         return keyInSB.toString();
     }
 
-    @Override
+    
     public void addCachePolicy(String spName, CachePolicy policy) {
         cacheTargetList.put(spName, policy);
     }
 
-    @Override
+    
     public void addCachePolicy(String spName, boolean isCacheTarget, boolean isMultiRow, int maxCount) {
 
         CachePolicy policy = new CachePolicy();
@@ -841,7 +847,7 @@ public class RedisCacheManager implements CacheManager {
         cacheTargetList.put(spName, policy);
     }
 
-    @Override
+    
     public void addCachePolicy(String spName, boolean isCacheTarget, boolean isMultiRow, int maxCount, int timeToLive) {
 
         CachePolicy policy = new CachePolicy();
@@ -853,13 +859,13 @@ public class RedisCacheManager implements CacheManager {
         cacheTargetList.put(spName, policy);
     }
 
-    @Override
+    
     public void delCachePolicy(String spName) {
 
         cacheTargetList.remove(spName);
     }
 
-    @Override
+    
     public Map getCachePolicies() {
         return cacheTargetList;
     }
@@ -868,7 +874,7 @@ public class RedisCacheManager implements CacheManager {
         return cacheTargetList.get(spName);
     }
     
-    @Override
+    
     public boolean isCacheOn() {
         return cacheOn.get();
     }

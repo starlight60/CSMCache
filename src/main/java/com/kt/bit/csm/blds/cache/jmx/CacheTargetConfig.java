@@ -1,4 +1,4 @@
-package com.kt.bit.csm.blds.jmx;
+package com.kt.bit.csm.blds.cache.jmx;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -10,7 +10,7 @@ import com.kt.bit.csm.blds.cache.storage.RedisCacheManager;
 
 public class CacheTargetConfig implements CacheTargetConfigMBean {
 
-	@Override
+	
 	public void setCacheTarget(String spName) {
 
 		try {
@@ -29,7 +29,7 @@ public class CacheTargetConfig implements CacheTargetConfigMBean {
 		
 	}
 
-	@Override
+	
 	public String getCacheTargetPolicies() {
 		
 		StringBuilder sb = new StringBuilder();
@@ -44,7 +44,7 @@ public class CacheTargetConfig implements CacheTargetConfigMBean {
 				String key = (String) it.next();
 				CachePolicy policy = (CachePolicy) policies.get(key);
 				sb.append("SP Name : ".concat(key).concat(", "))
-					.append("isTarget : ").append(policy.isCacheTarget()).append(", ")
+					.append("Cache Target : ").append(policy.isCacheTarget()).append(", ")
 					.append("Fetch Size : ").append(policy.getFetchSize()).append(", ")
 					.append("TTL : ").append(policy.getTimeToLive()).append(", ")
 					.append("isMultiRow : ").append(policy.isMultiRow()).append(", ")
@@ -58,7 +58,7 @@ public class CacheTargetConfig implements CacheTargetConfigMBean {
 		return sb.toString();
 	}
 
-	@Override
+	
 	public void setCacheTarget(String spName, boolean isTarget) {
 
 
@@ -79,7 +79,7 @@ public class CacheTargetConfig implements CacheTargetConfigMBean {
 		
 	}
 
-	@Override
+	
 	public void setCacheTarget(String spName, boolean isTarget, String fetchSize) {
 
 		try {
@@ -98,7 +98,7 @@ public class CacheTargetConfig implements CacheTargetConfigMBean {
 
 	}
 
-	@Override
+	
 	public void setCacheTarget(String spName, boolean isTarget,
 			String fetchSize, int ttl) {
 
@@ -118,7 +118,7 @@ public class CacheTargetConfig implements CacheTargetConfigMBean {
 
 	}
 
-	@Override
+	
 	public void setCacheTarget(String spName, boolean isTarget,
 			String fetchSize, int ttl, int maxCount) {
 		

@@ -11,7 +11,7 @@ import javax.management.ObjectName;
 
 import org.junit.Test;
 
-import com.kt.bit.csm.blds.jmx.CacheTargetConfig;
+import com.kt.bit.csm.blds.cache.jmx.CacheTargetConfig;
 
 public class CacheTargetConfigTest {
 
