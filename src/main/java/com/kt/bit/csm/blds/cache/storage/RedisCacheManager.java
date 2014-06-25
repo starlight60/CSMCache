@@ -27,9 +27,9 @@ public class RedisCacheManager implements CacheManager {
     public static final String configFilePath = "redis-config.properties";     // The file should be within classpath
     private CachePutQueue queue = null;
 
-    private int queueSize = 10;
+    private int queueSize = 10000;
     private int minPoolSize = 10;
-    private int maxPoolSize = 20;
+    private int maxPoolSize = 1000;
 
     public static RedisCacheManager getInstance() throws IOException {
         if(instance == null){

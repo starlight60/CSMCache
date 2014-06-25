@@ -20,15 +20,17 @@ public class RedisWorker implements Runnable  {
 
     @Override
     public void run() {
-        System.out.println(Thread.currentThread().getName()+" Start. Command = ");
-        processCommand();
-        System.out.println(Thread.currentThread().getName()+" End.");
+        try {
+            processCommand();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
-    private void processCommand(){
-        if( command instanceof RedisCacheCommand)
-            ((RedisCacheCommand)command).doPut();
+    private void processCommand() throws Exception {
+        if( command instanceof RedisCacheCommand) command.doPut();
+        else throw new Exception("Redis Cache Work can only Redis job");
     }
 
 

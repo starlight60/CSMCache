@@ -39,6 +39,7 @@ public class CachePutQueue {
     }
 
     public void addCacheWork(CacheCommand command){
+        System.out.println("add task : "+command.getKey());
         RedisWorker redisWorker = new RedisWorker(command);
         threadPoolExecutor.execute(redisWorker);
     }
