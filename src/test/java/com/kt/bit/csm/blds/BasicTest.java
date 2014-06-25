@@ -75,11 +75,11 @@ public class BasicTest {
             if (pv instanceof String) {
                 assertEquals(pv, rs.getString(i));
             } else if (pv instanceof Integer) {
-                assertEquals(((Integer) pv).intValue(), rs.getInt(i));
+                assertEquals(pv, rs.getInt(i));
             } else if (pv instanceof Date) {
                 assertEquals(pv, rs.getDate(i));
             } else if (pv instanceof Long) {
-                assertEquals(((Long) pv).longValue(), rs.getLong(i));
+                assertEquals(pv, rs.getLong(i));
             } else if (pv instanceof byte[]) {
                 assertEquals(pv, rs.getBytes(i));
             } else if (pv instanceof Timestamp) {

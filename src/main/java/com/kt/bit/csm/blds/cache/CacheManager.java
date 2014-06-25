@@ -55,7 +55,7 @@ public interface CacheManager {
 
     public void delCachePolicy(String spName);
 
-    public Map getCachePolicy();
+    public Map getCachePolicies();
 
     public boolean isCacheOn();
 }

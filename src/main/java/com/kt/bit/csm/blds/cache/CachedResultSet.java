@@ -68,55 +68,67 @@ public class CachedResultSet implements Serializable, CSMResultSet {
     }
 
     public String getString(int idx) throws SQLException{
-        return _getString(currentCacheRow.getColumn(idx).getValue());
+        final CacheColumn column = currentCacheRow.getColumn(idx);
+        return (column!=null) ? _getString(column.getValue()):null;
     }
 
     public String getString(String name) throws SQLException{
-        return _getString(currentCacheRow.getColumn(name).getValue());
+        final CacheColumn column = currentCacheRow.getColumn(name);
+        return (column!=null) ? _getString(column.getValue()):null;
     }
 
-    public int getInt(int idx) throws SQLException{
-        return _getInt(currentCacheRow.getColumn(idx).getValue());
+    public Integer getInt(int idx) throws SQLException{
+        final CacheColumn column = currentCacheRow.getColumn(idx);
+        return (column!=null) ? _getInt(column.getValue()):null;
     }
 
-    public int getInt(String name) throws SQLException{
-        return _getInt(currentCacheRow.getColumn(name).getValue());
+    public Integer getInt(String name) throws SQLException{
+        final CacheColumn column = currentCacheRow.getColumn(name);
+        return (column!=null) ? _getInt(column.getValue()):null;
     }
 
-    public long getLong(int idx) throws SQLException{
-        return _getLong(currentCacheRow.getColumn(idx).getValue());
+    public Long getLong(int idx) throws SQLException{
+        final CacheColumn column = currentCacheRow.getColumn(idx);
+        return (column!=null) ? _getLong(column.getValue()):null;
     }
 
-    public long getLong(String name) throws SQLException{
-        return _getLong(currentCacheRow.getColumn(name).getValue());
+    public Long getLong(String name) throws SQLException{
+        final CacheColumn column = currentCacheRow.getColumn(name);
+        return (column!=null) ? _getLong(column.getValue()):null;
     }
 
     public Date getDate(int idx) throws SQLException{
-        return _getDate(currentCacheRow.getColumn(idx).getValue());
+        final CacheColumn column = currentCacheRow.getColumn(idx);
+        return (column!=null) ? _getDate(column.getValue()):null;
     }
 
     public Date getDate(String name) throws SQLException{
-        return _getDate(currentCacheRow.getColumn(name).getValue());
+        final CacheColumn column = currentCacheRow.getColumn(name);
+        return (column!=null) ? _getDate(column.getValue()):null;
     }
 
     public Timestamp getTimestamp(int idx) throws SQLException {
-        return _getTimestamp(currentCacheRow.getColumn(idx).getValue());
+        final CacheColumn column = currentCacheRow.getColumn(idx);
+        return (column!=null) ? _getTimestamp(column.getValue()):null;
     }
 
     public Timestamp getTimestamp(String name) throws SQLException {
-        return _getTimestamp(currentCacheRow.getColumn(name).getValue());
+        final CacheColumn column = currentCacheRow.getColumn(name);
+        return (column!=null) ? _getTimestamp(column.getValue()):null;
     }
 
     public int getRow() throws SQLException {
         return currentIndex;
     }
 
-    public byte[] getBytes(String string) throws SQLException {
-        return _getBytes(currentCacheRow.getColumn(string).getValue());
+    public byte[] getBytes(String name) throws SQLException {
+        final CacheColumn column = currentCacheRow.getColumn(name);
+        return (column!=null) ? _getBytes(column.getValue()):null;
     }
 
     public byte[] getBytes(int idx) throws SQLException {
-        return _getBytes(currentCacheRow.getColumn(idx).getValue());
+        final CacheColumn column = currentCacheRow.getColumn(idx);
+        return (column!=null) ? _getBytes(column.getValue()):null;
     }
 
     /**
@@ -124,7 +136,6 @@ public class CachedResultSet implements Serializable, CSMResultSet {
      * @return
      * @throws SQLException
      */
-
     public ResultSetMetaData getMetaData() throws SQLException {
         return null;
     }

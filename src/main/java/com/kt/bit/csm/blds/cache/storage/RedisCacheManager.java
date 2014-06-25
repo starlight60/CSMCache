@@ -3,8 +3,9 @@ package com.kt.bit.csm.blds.cache.storage;
 
 import com.github.jedis.lock.JedisLock;
 import com.kt.bit.csm.blds.cache.*;
-import com.kt.bit.csm.blds.utility.CSMResultSet;
+import com.kt.bit.csm.blds.cache.config.CacheConfigManager;
 import com.kt.bit.csm.blds.utility.*;
+
 import com.kt.bit.csm.blds.utility.serializer.GsonDataFormatter;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -21,24 +22,26 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class RedisCacheManager implements CacheManager {
     private String  host;
     private int     port;
-
+    
     private AtomicBoolean cacheOn = new AtomicBoolean(false);
-    public ConcurrentHashMap<String, CachePolicy> cacheTargetList = null;
+    public ConcurrentHashMap<String,CachePolicy> cacheTargetList = new ConcurrentHashMap<String,CachePolicy>();
     public static RedisCacheManager instance = null;
+
     public static final String configFilePath = "redis-config.properties";     // The file should be within classpath
+    public static final String cacheConfigFilePath = "cache-config.properties";     // The file should be within classpath
+    public static final String cachePolicyFilePath = "cache-policy.properties";     // The file should be within classpath
+
     private RedisCacheSetQueueManager queue = null;
 
-    private int queueSize = 10000;
-    private int minPoolSize = 1;
-    private int maxPoolSize = 1;
-    private int queueCount = 100;
-
     private DataFormatter formatter;
+
+    private CacheEnvironments env;
 
     public static RedisCacheManager getInstance() throws IOException {
         if(instance == null){
             synchronized (RedisCacheManager.class) {
                 instance = new RedisCacheManager();
+                instance.init();
             }
         }
         return instance;
@@ -46,9 +49,7 @@ public class RedisCacheManager implements CacheManager {
 
     private JedisPool pool;
 
-    private RedisCacheManager() throws IOException, NumberFormatException {
-
-        formatter = GsonDataFormatter.getInstance();
+    private void init() throws IOException {
 
         // Load basic properties
         Properties properties = new Properties();
@@ -56,18 +57,31 @@ public class RedisCacheManager implements CacheManager {
         this.host = properties.getProperty("redis.host");
         this.port = Integer.valueOf(properties.getProperty("redis.port"));
 
-        try{
-            pool = new JedisPool(new JedisPoolConfig(), this.host, this.port);
-            cacheTargetList = new ConcurrentHashMap();
+        pool = new JedisPool(new JedisPoolConfig(), this.host, this.port);
 
+        // Load Cache Config, Policy Properties Files and Monitoring
+        CacheConfigManager manager = CacheConfigManager.getInstance();
+        manager.setPropertyChangeListener("cache-config", cacheConfigFilePath, 60000);
+        manager.setPropertyChangeListener("cache-policy", cachePolicyFilePath, 60000);
+
+        env = CacheEnvironments.getInstance();
+
+        try {
             if(!this.ping().equalsIgnoreCase("PONG")){
                 throw new Exception("Fail to connect to redis cache");
             }
-            queue = new RedisCacheSetQueueManager(this.queueSize, this.minPoolSize, this.maxPoolSize, this.queueCount);
-        }catch(Exception e){
+
+            queue = new RedisCacheSetQueueManager(env.getBufferSize(), env.getMinPoolSize(), env.getMaxPoolSize(), env.getQueueCount());
+        } catch(Exception e){
             // Redis Cache 접속이실패하는 경우 Cache 를 사용하지 않도록 설정함.
             this.setCacheOn(false);
         }
+    }
+
+    private RedisCacheManager() throws IOException, NumberFormatException {
+
+        formatter = GsonDataFormatter.getInstance();
+
     }
 
     /**
@@ -581,16 +595,18 @@ public class RedisCacheManager implements CacheManager {
             int totalCount;
             if (policy.isMultiRow()) {
                 if (policy.isMultiRow() && policy.getMaxCount() == 0) {
-                    throw new IllegalArgumentException(spName + " Policy is invalid.");
+                    throw new IllegalArgumentException(spName + " Fetch Size Policy is invalid.");
                 }
 
-                if (policy.getMaxCount() == -1) {
+                if (policy.getFetchSize().equals(CacheFetchConstants.FETCH_SIZE)) {
+                    totalCount = result.getFetchSize();
+                }
+                else if (policy.getFetchSize().equals(CacheFetchConstants.FETCH_ALL)) {
                     totalCount = -1;
                 }
                 else {
-                    totalCount = policy.getMaxCount();
+                    totalCount = 1;
                 }
-
 
             }
             else {
@@ -794,7 +810,6 @@ public class RedisCacheManager implements CacheManager {
 
     }
 
-
     public String makeKey(final String spName, final DAMParam[] param) {
         if (spName==null||spName.length()<1) throw new RuntimeException("the stored procedure name should be exist");
         final StringBuffer keyInSB = new StringBuffer();
@@ -809,11 +824,9 @@ public class RedisCacheManager implements CacheManager {
         return keyInSB.toString();
     }
 
-
     public void addCachePolicy(String spName, CachePolicy policy) {
         cacheTargetList.put(spName, policy);
     }
-
 
     public void addCachePolicy(String spName, boolean isCacheTarget, boolean isMultiRow, int maxCount) {
 
@@ -826,7 +839,6 @@ public class RedisCacheManager implements CacheManager {
         cacheTargetList.put(spName, policy);
     }
 
-
     public void addCachePolicy(String spName, boolean isCacheTarget, boolean isMultiRow, int maxCount, int timeToLive) {
 
         CachePolicy policy = new CachePolicy();
@@ -838,7 +850,6 @@ public class RedisCacheManager implements CacheManager {
         cacheTargetList.put(spName, policy);
     }
 
-
     public void delCachePolicy(String spName) {
 
         cacheTargetList.remove(spName);
@@ -849,15 +860,16 @@ public class RedisCacheManager implements CacheManager {
     public Map getCachePolicy() {
         return cacheTargetList;
     }
-
+    
+    public Map getCachePolicies() {
+        return cacheTargetList;
+    }
 
     public boolean isCacheOn() {
         return cacheOn.get();
     }
 
-
     public void setCacheOn(boolean cacheOn) {
         this.cacheOn.set(cacheOn);
     }
-
 }

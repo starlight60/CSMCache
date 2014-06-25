@@ -1,10 +1,13 @@
 package com.kt.bit.csm.blds.cache;
 
 public class CachePolicy {
+	
     private boolean cacheTarget = true;
     private int maxCount;
     private boolean multiRow;
-
+    private String fetchSize = CacheFetchConstants.FETCH_ALL;
+    private int timeToLive = 10;
+    
     public boolean isCacheTarget() {
         return cacheTarget;
     }
@@ -37,5 +40,12 @@ public class CachePolicy {
         this.multiRow = multiRow;
     }
 
-    private int timeToLive = 10;
+    public String getFetchSize() {
+		return fetchSize;
+	}
+
+	public void setFetchSize(String fetchSize) {
+		this.fetchSize = fetchSize;
+	}
+
 }

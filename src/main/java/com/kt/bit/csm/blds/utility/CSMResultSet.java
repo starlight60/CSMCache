@@ -11,12 +11,12 @@ public interface CSMResultSet {
     public static int RESULT_MODE_ORACLE = 2;
 
     public boolean next() throws SQLException;
-    public int getInt(int i) throws SQLException;
+    public Integer getInt(int i) throws SQLException;
     public String getString(int i) throws SQLException;
-    public long getLong(int i) throws SQLException;
-    public long getLong(String string) throws SQLException;
+    public Long getLong(int i) throws SQLException;
+    public Long getLong(String string) throws SQLException;
     public String getString(String string) throws SQLException;
-    public int getInt(String string) throws SQLException;
+    public Integer getInt(String string) throws SQLException;
     public Date getDate(String string) throws SQLException;
     public Date getDate(int i) throws SQLException;
     public Timestamp getTimestamp(String string) throws SQLException;
