@@ -1,30 +1,28 @@
-package com.kt.bit.csm.blds.utility;
+package com.kt.bit.csm.blds.utility.serializer;
 
 import com.google.gson.*;
 import com.kt.bit.csm.blds.cache.CachedResultSet;
+import com.kt.bit.csm.blds.utility.DataFormatter;
 
 import javax.swing.text.DateFormatter;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.lang.reflect.Type;
 import java.sql.Timestamp;
 
-public class DataFormmater {
+public class GsonDataFormatter implements DataFormatter {
 
     private static Gson gson;
-    private volatile static DataFormmater instance;
+    private volatile static DataFormatter instance;
 
-    public static DataFormmater getInstance() {
+    public static DataFormatter getInstance() {
         if (instance==null) {
             synchronized (DateFormatter.class) {
-                instance = new DataFormmater();
+                instance = new GsonDataFormatter();
             }
         }
         return instance;
     }
 
-    private DataFormmater() {
+    private GsonDataFormatter() {
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(Timestamp.class, new TimestampSerializer());
         gson = gsonBuilder.create();
@@ -37,12 +35,15 @@ public class DataFormmater {
     }
 
     public String toJson(CachedResultSet resultSet) {
-        JsonElement je = gson.toJsonTree(resultSet);
-        return je.toString();
-
+        if (resultSet!=null)
+           return gson.toJson(resultSet);
+        return null;
     }
 
     public CachedResultSet fromJson(String json) {
-        return gson.fromJson(json, CachedResultSet.class);
+        if (json!=null) {
+            return gson.fromJson(json, CachedResultSet.class);
+        }
+        return null;
     }
 }

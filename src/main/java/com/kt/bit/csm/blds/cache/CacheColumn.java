@@ -1,13 +1,8 @@
 package com.kt.bit.csm.blds.cache;
 
-/**
- * Created with IntelliJ IDEA.
- * User: toto
- * Date: 14. 6. 20
- * Time: 오후 2:51
- * To change this template use File | Settings | File Templates.
- */
-public class CacheColumn {
+import java.io.Serializable;
+
+public class CacheColumn implements Serializable {
     int type;
     String name;
     Object value;
@@ -41,6 +36,4 @@ public class CacheColumn {
     void setValue(Object value) {
         this.value = value;
     }
-
-
 }

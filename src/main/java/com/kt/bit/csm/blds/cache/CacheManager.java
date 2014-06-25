@@ -47,6 +47,8 @@ public interface CacheManager {
 
     public void addCachePolicy(String spName, boolean isCacheTarget, boolean isMultiRow, int maxCount, int timeToLive);
 
+    public CachePolicy getCachePolicy(String spName);
+
     public void delCachePolicy(String spName);
 
     public Map getCachePolicy();

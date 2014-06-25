@@ -8,6 +8,7 @@ import com.kt.bit.csm.blds.cache.CachePolicy;
 import com.kt.bit.csm.blds.cache.CachedResultSet;
 import com.kt.bit.csm.blds.utility.CSMResultSet;
 import com.kt.bit.csm.blds.utility.*;
+import com.kt.bit.csm.blds.utility.serializer.GsonDataFormatter;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -28,7 +29,8 @@ public class RedisCacheManager implements CacheManager {
     public ConcurrentHashMap<String, CachePolicy> cacheTargetList = null;
     public static RedisCacheManager instance = null;
     public static final String configFilePath = "redis-config.properties";     // The file should be within classpath
-    private DataFormmater formmater;
+
+    private DataFormatter formatter;
 
     public static RedisCacheManager getInstance() throws IOException {
         if(instance == null){
@@ -40,21 +42,11 @@ public class RedisCacheManager implements CacheManager {
         return instance;
     }
 
-    public static RedisCacheManager getInstance(final String host, final int port) throws IOException {
-        if(instance == null){
-            synchronized (RedisCacheManager.class) {
-                instance = new RedisCacheManager(host, port);
-            }
-        }
-
-        return instance;
-    }
-
     private JedisPool pool;
 
     private RedisCacheManager() throws IOException, NumberFormatException {
 
-        formmater = DataFormmater.getInstance();
+        formatter = GsonDataFormatter.getInstance();
 
         // Load basic properties
         Properties properties = new Properties();
@@ -73,23 +65,6 @@ public class RedisCacheManager implements CacheManager {
             this.setCacheOn(false);
         }
 
-    }
-
-    private RedisCacheManager(String host, int port) {
-        this.host = host;
-        this.port = port;
-
-        try{
-            pool = new JedisPool(new JedisPoolConfig(), this.host, this.port);
-            cacheTargetList = new ConcurrentHashMap();
-
-            if(!this.ping().equalsIgnoreCase("PONG")){
-                throw new Exception("Fail to connect to redis cache");
-            }
-        }catch(Exception e){
-            // Redis Cache 접속이실패하는 경우 Cache 를 사용하지 않도록 설정함.
-            this.setCacheOn(false);
-        }
     }
 
     /**
@@ -440,7 +415,7 @@ public class RedisCacheManager implements CacheManager {
 
         Jedis jedis = borrow();
         try {
-            return jedis.setex(key, ttl ,value);
+            return jedis.setex(key, ttl, value);
         } finally {
             revert(jedis);
         }
@@ -541,13 +516,28 @@ public class RedisCacheManager implements CacheManager {
     public CachedResultSet getResultSet(String key){
         CachedResultSet resultSet = null;
         if( exists(key) ){
-            return formmater.fromJson(get(key));
+            return formatter.fromJson(get(key));
         }
 
         return resultSet;
     }
 
     public CachedResultSet saveResultSetToCache(String spName, String key, CSMResultSet result) {
+
+        assert result instanceof DatabaseResultSet;
+        assert spName != null && spName.length()>0;
+
+        final CachePolicy policy = cacheTargetList.get(spName);
+        final CachedResultSet cachedResultSet = makeCachedResultSet(spName, result, policy);
+
+        if (cachedResultSet!=null) {
+            this.set(key, formatter.toJson(cachedResultSet), policy.getTimeToLive());
+        }
+
+        return cachedResultSet;
+    }
+
+    public CachedResultSet makeCachedResultSet(String spName, CSMResultSet result, CachePolicy policy) {
 
         assert result instanceof DatabaseResultSet;
         assert spName != null && spName.length()>0;
@@ -569,11 +559,8 @@ public class RedisCacheManager implements CacheManager {
              * If isNultiRow == false, that means only one row.
              *
              */
-            int totalCount = 0;
-            CachePolicy policy = (CachePolicy) cacheTargetList.get(spName);
-
+            int totalCount;
             if (policy.isMultiRow()) {
-
                 if (policy.isMultiRow() && policy.getMaxCount() == 0) {
                     throw new IllegalArgumentException(spName + " Policy is invalid.");
                 }
@@ -603,8 +590,6 @@ public class RedisCacheManager implements CacheManager {
                     break;
                 }
             }
-
-            this.set(key, formmater.toJson(cachedResultSet), policy.getTimeToLive());
 
             return cachedResultSet;
 
@@ -840,6 +825,7 @@ public class RedisCacheManager implements CacheManager {
         cacheTargetList.remove(spName);
     }
 
+    public CachePolicy getCachePolicy(String spName) { return cacheTargetList.get(spName); }
 
     public Map getCachePolicy() {
         return cacheTargetList;

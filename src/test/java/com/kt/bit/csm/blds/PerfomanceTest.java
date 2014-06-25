@@ -52,16 +52,32 @@ public class PerfomanceTest extends AbstractBenchmark {
 
     }
 
-    @BenchmarkOptions(benchmarkRounds=1000, warmupRounds=2)
+    @BenchmarkOptions(benchmarkRounds=10000, warmupRounds=2)
     @Test
     public void testGetFromDatabaseNormal() throws Exception {
         _doDatabaseTest();
     }
 
-    @BenchmarkOptions(benchmarkRounds=1000, warmupRounds=2, concurrency = 10)
+    @BenchmarkOptions(benchmarkRounds=10000, warmupRounds=2, concurrency = 10)
     @Test
     public void testGetFromDatabaseConcurrent() throws Exception {
         _doDatabaseTest();
+    }
+
+    @BenchmarkOptions(benchmarkRounds=10000, warmupRounds=2)
+    @Test
+    public void testGetFromCacheNormal() throws Exception {
+
+        _doCacheTest();
+
+    }
+
+    @BenchmarkOptions(benchmarkRounds=10000, warmupRounds=2, concurrency = 10)
+    @Test
+    public void testGetFromCacheConcurrent() throws Exception {
+
+        _doCacheTest();
+
     }
 
     private void _doDatabaseTest() throws Exception {
@@ -93,22 +109,6 @@ public class PerfomanceTest extends AbstractBenchmark {
         }
 
         rs.close();
-    }
-
-    @BenchmarkOptions(benchmarkRounds=1000, warmupRounds=2)
-    @Test
-    public void testGetFromCacheNormal() throws Exception {
-
-        _doCacheTest();
-
-    }
-
-    @BenchmarkOptions(benchmarkRounds=1000, warmupRounds=2, concurrency = 10)
-    @Test
-    public void testGetFromCacheConcurrent() throws Exception {
-
-        _doCacheTest();
-
     }
 
     private void _doCacheTest() throws Exception {

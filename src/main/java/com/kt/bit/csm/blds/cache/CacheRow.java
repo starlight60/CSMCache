@@ -1,11 +1,16 @@
 package com.kt.bit.csm.blds.cache;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CacheRow {
+public class CacheRow implements Serializable {
     private Map<String, CacheColumn> cacheColumns;
     int rowIndex = 0;
+
+    public CacheRow() {
+        this.cacheColumns = new HashMap<String, CacheColumn>();
+    }
 
     public CacheRow(CacheColumn[] cacheColumns){
         this.cacheColumns = new HashMap<String, CacheColumn >();
@@ -68,6 +73,10 @@ public class CacheRow {
             this.cacheColumns.put(cacheColumns[i].getName(), cacheColumns[i]);
             this.cacheColumns.put(""+i, cacheColumns[i]);
         }
+    }
+
+    public void addCacheColumn(final String key, final CacheColumn column) {
+        this.cacheColumns.put(key, column);
     }
 
 }

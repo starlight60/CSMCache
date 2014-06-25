@@ -6,6 +6,7 @@ import com.kt.bit.csm.blds.utility.DatabaseResultSet;
 import java.io.Serializable;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ListIterator;
 
 import static com.kt.bit.csm.blds.cache.util.JDBCTypeMappingUtil.*;
@@ -17,13 +18,12 @@ public class CachedResultSet implements Serializable, CSMResultSet {
 
     private static final long serialVersionUID = 2815450470746294066L;
 
-    private ArrayList<CacheRow> cacheRows;
+    private List<CacheRow> cacheRows;
     private ListIterator iterator;
     private CacheRow currentCacheRow;
     private int currentIndex = 1;
 
     private int dataSourceType = DatabaseResultSet.RESULT_MODE_CACHE;
-
 
     public CachedResultSet(){
         this.cacheRows = new ArrayList<CacheRow>();
@@ -32,6 +32,10 @@ public class CachedResultSet implements Serializable, CSMResultSet {
 
     public CacheRow getCurrentCacheRow() {
         return currentCacheRow;
+    }
+
+    public void addRow(CacheRow row){
+        cacheRows.add(row);
     }
 
     public void addRow(CacheColumn[] cacheColumns){
@@ -138,8 +142,15 @@ public class CachedResultSet implements Serializable, CSMResultSet {
     }
 
     public int getFetchSize() throws SQLException {
-        throw new SQLException("not supported");
+        return -1;
     }
 
+    public List<CacheRow> getCacheRows() {
+        return cacheRows;
+    }
+
+    public void setCacheRows(ArrayList<CacheRow> cacheRows) {
+        this.cacheRows = cacheRows;
+    }
 }
 

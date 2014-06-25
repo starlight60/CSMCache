@@ -1,12 +1,5 @@
 package com.kt.bit.csm.blds.cache;
 
-/**
- * Created with IntelliJ IDEA.
- * User: toto
- * Date: 14. 6. 20
- * Time: 오후 1:31
- * To change this template use File | Settings | File Templates.
- */
 public class CachePolicy {
     private boolean cacheTarget = true;
     private int maxCount;
