@@ -29,6 +29,10 @@ public interface CacheManager {
 
     public String set(String key, String value);
 
+    public void asynchSet(String key, String value);
+
+    public void asynchSet(String key, String value, int ttl);
+
     public String clear();
 
     public boolean exists(String key);
