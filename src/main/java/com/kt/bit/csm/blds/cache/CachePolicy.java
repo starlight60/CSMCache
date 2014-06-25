@@ -12,7 +12,7 @@ public class CachePolicy {
     private boolean cacheTarget = true;
     private int maxCount;
     private boolean multiRow;
-    private String fetchSize = CacheFetchConstants.FETCH_SIZE;
+    private String fetchSize = CacheFetchConstants.FETCH_ALL;
 	private int timeToLive;
     
     public boolean isCacheTarget() {

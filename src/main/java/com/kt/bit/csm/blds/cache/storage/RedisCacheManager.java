@@ -25,13 +25,24 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class RedisCacheManager implements CacheManager {
     private String  host;
     private int     port;
-
+    private boolean isTest = false;
+    
     private AtomicBoolean cacheOn = new AtomicBoolean(false);
     public ConcurrentHashMap cacheTargetList = null;
     public static RedisCacheManager instance = null;
     public static final String configFilePath = "redis-config.properties";     // The file should be within classpath
     public static final String cacheConfigFilePath = "cache-config.properties";     // The file should be within classpath
+    public static final String cachePolicyFilePath = "cache-policy.properties";     // The file should be within classpath
 
+    /**
+     * for Test
+     * @return
+     * @throws IOException
+     */
+    public void setTestFlag(boolean flag) {
+    	this.isTest = flag;
+    }
+    
     public static RedisCacheManager getInstance() throws IOException {
         if(instance == null){
             synchronized (RedisCacheManager.class) {
@@ -62,9 +73,12 @@ public class RedisCacheManager implements CacheManager {
         this.host = properties.getProperty("redis.host");
         this.port = Integer.valueOf(properties.getProperty("redis.port"));
 
-        // Load Cache On The Fly Properties File
-		CacheConfigManager manager = CacheConfigManager.getInstance();
-		manager.setPropertyChangeListener(cacheConfigFilePath, 100);
+        // Load Cache Config, Policy Properties Files and Monitoring
+        if (!isTest) {
+    		CacheConfigManager manager = CacheConfigManager.getInstance();
+    		manager.setPropertyChangeListener("cache-config", cacheConfigFilePath, 60000);
+    		manager.setPropertyChangeListener("cache-policy", cachePolicyFilePath, 60000);
+        }
         
         pool = new JedisPool(new JedisPoolConfig(), this.host, this.port);
 

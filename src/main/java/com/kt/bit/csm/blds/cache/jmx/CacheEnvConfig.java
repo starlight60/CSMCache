@@ -9,7 +9,6 @@ public class CacheEnvConfig implements CacheEnvConfigMBean {
 
 	public CacheEnvConfig() {}
 
-	
 	public void setCacheOn(boolean flag) {
 		
 		try {
@@ -20,7 +19,6 @@ public class CacheEnvConfig implements CacheEnvConfigMBean {
 		}
 		
 	}
-
 	
 	public boolean getCacheOn() {
 		
@@ -34,15 +32,13 @@ public class CacheEnvConfig implements CacheEnvConfigMBean {
 		return false;
 		
 	}
-	
-	
+		
 	public void setCacheQueueSize(int size) {
 
 		CacheEnvironments env = CacheEnvironments.getInstance();
 		env.setQueueSize(size); //Setting Queue Size
 		
 	}
-	
 	
 	public int getCacheQueueSize() {
 
@@ -51,7 +47,6 @@ public class CacheEnvConfig implements CacheEnvConfigMBean {
 		
 	}
 	
-	
 	public void setCacheMinPoolSize(int size) {
 
 		CacheEnvironments env = CacheEnvironments.getInstance();
@@ -59,22 +54,19 @@ public class CacheEnvConfig implements CacheEnvConfigMBean {
 		
 	}
 
-	
 	public int getCacheMinPoolSize() {
 		
 		CacheEnvironments env = CacheEnvironments.getInstance();
 		return env.getMinPoolSize();
 		
 	}
-	
-	
+		
 	public void setCacheMaxPoolSize(int size) {
 
 		CacheEnvironments env = CacheEnvironments.getInstance();
 		env.setMaxPoolSize(size); //Setting Maximum Pool Size
 		
 	}
-
 	
 	public int getCacheMaxPoolSize() {
 		
@@ -82,7 +74,6 @@ public class CacheEnvConfig implements CacheEnvConfigMBean {
 		return env.getMaxPoolSize();
 		
 	}
-	
 	
 	public void setTotalSettings(boolean flag, int workers, int queueSize, int minPoolSize, int maxPoolSize) {
 
@@ -100,7 +91,6 @@ public class CacheEnvConfig implements CacheEnvConfigMBean {
 		env.setMaxPoolSize(maxPoolSize); //Setting Maximum Pool Size
 		
 	}
-
 	
 	public String getTotalSettings() {
 		

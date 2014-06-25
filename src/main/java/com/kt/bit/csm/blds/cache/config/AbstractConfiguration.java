@@ -73,6 +73,7 @@ public abstract class AbstractConfiguration implements CacheConfiguration {
 	        
 	        // Set the Value in Singleton Class of Properties
 			try {
+				
 		        CacheEnvironments env = CacheEnvironments.getInstance();
 		        RedisCacheManager manager = RedisCacheManager.getInstance();
 		        

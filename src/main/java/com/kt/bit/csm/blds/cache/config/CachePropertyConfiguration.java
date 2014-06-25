@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 
+import com.kt.bit.csm.blds.cache.CachePolicy;
+import com.kt.bit.csm.blds.cache.storage.RedisCacheManager;
+
 public class CachePropertyConfiguration extends AbstractConfiguration {
 
 	private final File file;
@@ -37,7 +40,39 @@ public class CachePropertyConfiguration extends AbstractConfiguration {
 		setAllProperties(properties);
 	}
 
-	private void setAllProperties(Properties properties) {
+	private void setAllProperties(Properties properties) throws IOException {
+
+		// Cache Policy Check
+		if (properties.containsKey("sp.names")) {
+			
+			String[] spNames = properties.getProperty("sp.names").split(",");
+			RedisCacheManager manager = RedisCacheManager.getInstance();
+			
+			String target = "";
+			String fetchSize = "";
+			String maxCount = "";
+			String multiRow = "";
+			String ttl = "";
+			
+			for (String spName : spNames) {
+				
+				target = properties.getProperty(spName.concat(".target"), "true");
+				fetchSize = properties.getProperty(spName.concat(".fetchsize"), "all");
+				maxCount = properties.getProperty(spName.concat(".maxCount"), "1000");
+				multiRow = properties.getProperty(spName.concat(".multirow"), "true");
+				ttl = properties.getProperty(spName.concat(".ttl"), "10");
+				
+				CachePolicy policy = new CachePolicy();
+				policy.setCacheTarget(Boolean.valueOf(target));
+				policy.setFetchSize(fetchSize);
+				policy.setMaxCount(Integer.valueOf(maxCount));
+				policy.setMultiRow(Boolean.valueOf(multiRow));
+				policy.setTimeToLive(Integer.valueOf(ttl));
+				
+				manager.addCachePolicy(spName, policy);
+			}
+		}
+		
 		for (Map.Entry<Object, Object> entry : properties.entrySet()) {
 			setProperty((String) entry.getKey(), entry.getValue());
 		}

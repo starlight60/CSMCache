@@ -1,10 +1,13 @@
 package com.kt.bit.csm.blds;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.Set;
 
 import org.junit.Test;
 
 import com.kt.bit.csm.blds.cache.CacheEnvironments;
+import com.kt.bit.csm.blds.cache.CachePolicy;
 import com.kt.bit.csm.blds.cache.config.CacheConfigManager;
 import com.kt.bit.csm.blds.cache.storage.RedisCacheManager;
 
@@ -58,29 +61,26 @@ public class ConfigPropertyConfigurationTest {
 	private void multiCase() {
 		
 		String fileName1 = "D:/dev_sdp/eclipse/cache-config.properties";
-		String fileName2 = "D:/dev_sdp/eclipse/cache-config2.properties";
+		String fileName2 = "D:/dev_sdp/eclipse/cache-policy.properties";
 		
 		try {
 			
 			CacheConfigManager manager = CacheConfigManager.getInstance();
-			manager.setPropertyChangeListener("Config1", fileName1, 100);
-			manager.setPropertyChangeListener("Config2", fileName2, 100);
+			manager.setPropertyChangeListener("cache-config", fileName1, 100);
+			manager.setPropertyChangeListener("cache-policy", fileName2, 100);
 			
 			CacheEnvironments env = CacheEnvironments.getInstance();
 			RedisCacheManager rm = RedisCacheManager.getInstance();
+			CachePolicy policy = new CachePolicy();
+			rm.setTestFlag(true);
 			
-			System.out.println("Cache On : " + rm.isCacheOn());
-			System.out.println("Queue Size : " + env.getQueueSize());
-			System.out.println("Min Pool Size : " + env.getMinPoolSize());
-			System.out.println("Max Pool Size : " + env.getMaxPoolSize());
-
 			while(true) {
 				
-				if (manager.isChanged("Config1")) {
+				if (manager.isChanged("cache-config")) {
 					
-					manager.setChanged("Config1", false);
+					manager.setChanged("cache-config", false);
 
-					System.out.println("------Config1-----");
+					System.out.println("------cache-config-----");
 					System.out.println("Cache On : " + rm.isCacheOn());
 					System.out.println("Queue Size : " + env.getQueueSize());
 					System.out.println("Min Pool Size : " + env.getMinPoolSize());
@@ -88,15 +88,26 @@ public class ConfigPropertyConfigurationTest {
 					
 				}
 				
-				if (manager.isChanged("Config2")) {
+				if (manager.isChanged("cache-policy")) {
 					
-					manager.setChanged("Config2", false);
+					manager.setChanged("cache-policy", false);
 
-					System.out.println("------Config2-----");
-					System.out.println("Cache On : " + rm.isCacheOn());
-					System.out.println("Queue Size : " + env.getQueueSize());
-					System.out.println("Min Pool Size : " + env.getMinPoolSize());
-					System.out.println("Max Pool Size : " + env.getMaxPoolSize());
+					Map policies = rm.getCachePolicies();
+					
+					if (policies == null) {
+						continue;
+					}
+					
+					System.out.println("------cache-policy-----");
+					for (Object key : policies.keySet()) {
+						StringBuilder sb = new StringBuilder();
+						policy = (CachePolicy) policies.get(key);
+						sb.append("SP Name : ").append(key).append("\n");
+						sb.append("Fetch Size : ").append(policy.getFetchSize()).append("\n");
+						sb.append("Max Count : ").append(policy.getMaxCount()).append("\n");
+						sb.append("TTL : ").append(policy.getTimeToLive());
+						System.out.println(sb.toString());
+					}
 					
 				}
 				
