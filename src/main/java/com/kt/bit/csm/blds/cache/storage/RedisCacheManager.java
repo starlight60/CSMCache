@@ -25,11 +25,12 @@ public class RedisCacheManager implements CacheManager {
     public ConcurrentHashMap cacheTargetList = null;
     public static RedisCacheManager instance = null;
     public static final String configFilePath = "redis-config.properties";     // The file should be within classpath
-    private CachePutQueue queue = null;
+    private RedisCacheSetQueueManager queue = null;
 
     private int queueSize = 10000;
-    private int minPoolSize = 10;
-    private int maxPoolSize = 1000;
+    private int minPoolSize = 1;
+    private int maxPoolSize = 1;
+    private int queueCount = 100;
 
     public static RedisCacheManager getInstance() throws IOException {
         if(instance == null){
@@ -37,7 +38,6 @@ public class RedisCacheManager implements CacheManager {
                 instance = new RedisCacheManager();
             }
         }
-
         return instance;
     }
 
@@ -68,7 +68,7 @@ public class RedisCacheManager implements CacheManager {
             if(!this.ping().equalsIgnoreCase("PONG")){
                 throw new Exception("Fail to connect to redis cache");
             }
-            queue = new CachePutQueue(this.queueSize, this.minPoolSize, this.maxPoolSize);
+            queue = new RedisCacheSetQueueManager(this.queueSize, this.minPoolSize, this.maxPoolSize, this.queueCount);
         }catch(Exception e){
             // Redis Cache 접속이실패하는 경우 Cache 를 사용하지 않도록 설정함.
             this.setCacheOn(false);
@@ -86,7 +86,7 @@ public class RedisCacheManager implements CacheManager {
             if(!this.ping().equalsIgnoreCase("PONG")){
                 throw new Exception("Fail to connect to redis cache");
             }
-            queue = new CachePutQueue(this.queueSize, this.minPoolSize, this.maxPoolSize);
+            queue = new RedisCacheSetQueueManager(this.queueSize, this.minPoolSize, this.maxPoolSize, this.queueCount);
 
         }catch(Exception e){
             // Redis Cache 접속이실패하는 경우 Cache 를 사용하지 않도록 설정함.

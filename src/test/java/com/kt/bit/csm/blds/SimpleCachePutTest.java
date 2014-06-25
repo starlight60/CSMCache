@@ -2,17 +2,16 @@ package com.kt.bit.csm.blds;
 
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
+import com.kt.bit.csm.blds.cache.CacheCommand;
 import com.kt.bit.csm.blds.cache.CacheManager;
+import com.kt.bit.csm.blds.cache.storage.RedisCacheCommand;
 import com.kt.bit.csm.blds.cache.storage.RedisCacheManager;
-
+import com.kt.bit.csm.blds.cache.storage.RedisWork;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Random;
 
 /**
  * Created with IntelliJ IDEA.
@@ -21,11 +20,10 @@ import java.util.Random;
  * Time: 오후 3:56
  * To change this template use File | Settings | File Templates.
  */
-public class AsynchCachePutTest extends AbstractBenchmark {
+public class SimpleCachePutTest extends AbstractBenchmark {
 
     private static String   redis_host = "127.0.0.1";
     private static int      redis_port = 6379;
-    private int dataSize = 1000;
     public static CacheManager cm = null;
     String value = "{\n" +
             "    \"id\": 1,\n" +
@@ -37,24 +35,26 @@ public class AsynchCachePutTest extends AbstractBenchmark {
     @BeforeClass
     public static void init(){
         try {
+
             cm = RedisCacheManager.getInstance(redis_host, redis_port);
-            long time = System.currentTimeMillis();
-
-            SimpleDateFormat dayTime = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
-
-            String str = dayTime.format(new Date(time));
-            System.out.println("start : " + str);
         } catch (IOException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
     }
 
 
-    @BenchmarkOptions(benchmarkRounds = 1000000, warmupRounds = 2, concurrency = 2)
+    @BenchmarkOptions(benchmarkRounds = 300000, warmupRounds = 2, concurrency = 100)
     @Test
     public void asynchCachePut(){
         try{
-            cm.asynchSet(String.valueOf("key" + Math.random() * 10000), value, 600);
+            RedisCacheCommand command = new RedisCacheCommand(CacheCommand.CACHE_WORK_MODE_PUT, "key" + Math.random() * 1000000, value, 600);
+//            command.doPut();
+
+            RedisWork work = new RedisWork(command);
+//            Thread t = new Thread(work);
+//            t.start();
+            work.processCommand();
+
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -65,13 +65,7 @@ public class AsynchCachePutTest extends AbstractBenchmark {
     @AfterClass
     public static void finish(){
         try {
-            long time = System.currentTimeMillis();
-
-            SimpleDateFormat dayTime = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
-
-            String str = dayTime.format(new Date(time));
-            System.out.println("finish : " + str);
-            Thread.sleep(50000);
+            Thread.sleep(5000);
         } catch (InterruptedException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
