@@ -83,8 +83,9 @@ public class CachedResultSet implements Serializable, CSMResultSet {
             }
             return currentCacheRow.getColumn(columnName.toLowerCase());
         }
-        else if (i instanceof String)
+        else if (i instanceof String) {
             return currentCacheRow.getColumn(((String) i).toLowerCase());
+        }
         
         throw new SQLException("the argument must be column index or name");
 

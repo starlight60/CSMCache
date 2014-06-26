@@ -1,6 +1,7 @@
 package com.kt.bit.csm.blds.cache;
 
 import java.io.Serializable;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,11 +39,13 @@ public class CacheRow implements Serializable {
         return cacheColumn;
     }
 
-    public CacheColumn getColumn(String name){
-        CacheColumn cacheColumn = null;
+    public CacheColumn getColumn(String name) throws SQLException {
+        CacheColumn cacheColumn;
         if(cacheColumns != null ){
-            cacheColumn = this.cacheColumns.get(name);
-        }
+            if (cacheColumns.containsKey(name))
+                cacheColumn = this.cacheColumns.get(name);
+            else throw new SQLException("column(name:"+name+") is invalid (not exists)");
+        } else throw new SQLException("cacheColumns is not exists");
         return cacheColumn;
     }
 
