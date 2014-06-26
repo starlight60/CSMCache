@@ -14,6 +14,7 @@ public class RedisWork implements Runnable  {
         try {
             processCommand();
         } catch (Exception e) {
+            // TODO: We should generate the log for this situation
             e.printStackTrace();
         }
     }

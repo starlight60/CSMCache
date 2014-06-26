@@ -7,7 +7,6 @@ import com.kt.bit.csm.blds.cache.CachePolicy;
 import com.kt.bit.csm.blds.cache.CachedResultSet;
 import com.kt.bit.csm.blds.cache.storage.RedisCacheManager;
 import com.kt.bit.csm.blds.utility.*;
-import com.kt.bit.csm.blds.utility.CSMResultSet;
 import oracle.jdbc.OracleTypes;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -17,12 +16,11 @@ import java.io.IOException;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
-public class BasicTest {
+public class RedisTimeoutTest extends AbstractBenchmark {
 
     private static String sales_year = "2007";
     private static String staff = "1";
@@ -33,11 +31,20 @@ public class BasicTest {
 
     public static Object[] expectedDataList = new Object[]{ "1    ", "A", "CEO", "CEO", "2007", 7000, 6500, 500, "ABCD1234", new Timestamp(1051963364000L), new Date(1051887600000L), null };
 
+    private static int passedByDatabase = 0;
+    private static int passedByCache = 0;
+
     @BeforeClass
     public static void callAndMakeCachedata() throws Exception {
 
+        // Load basic properties
+        Properties properties = PropertyManager.loadPropertyFromFile(RedisCacheManager.redisConfigFilePath, RedisCacheManager.redisConfigFileKey);
+        String host = properties.getProperty("redis.host");
+        int port = Integer.valueOf(properties.getProperty("redis.port"));
+        int timeout = 5;
+
         // Clean up cache if exists
-        CacheManager cm = RedisCacheManager.getInstance();
+        CacheManager cm = RedisCacheManager.getInstance(host, port, timeout);
         if (cm.exists(cm.makeKey(spName, param))) {
             cm.clear();
         }
@@ -54,12 +61,13 @@ public class BasicTest {
 
     }
 
+    @BenchmarkOptions(benchmarkRounds=1000000, warmupRounds = 2, concurrency = 10)
     @Test
     public void tryToGetCache() throws Exception {
 
         // Make cache
         DataAccessManager dam = new DataAccessManager();
-        CSMResultSet rs = dam.executeStoredProcedureForQuery(spName, returnParamName, param);
+        CSMResultSet rs = dam.executeStoredProcedureForQuery(spName, returnParamName, param, CacheManager.CacheMode.CACHE_READ_ONLY);
 
         checkCachedRow(rs);
 
@@ -67,8 +75,8 @@ public class BasicTest {
     }
 
     public static void checkCachedRow(CSMResultSet rs) throws SQLException {
-        assertTrue("Result is not CachedResultSet type", rs instanceof CachedResultSet);
-        assertTrue("Row count must be 1, count:" + rs.getRowCount(), rs.getRowCount() == 1);
+        if (rs instanceof CachedResultSet) passedByCache++;
+        if (rs instanceof DatabaseResultSet) passedByDatabase++;
 
         rs.next();
 
@@ -102,6 +110,10 @@ public class BasicTest {
         if (cm.exists(cm.makeKey(spName, param))) {
             cm.clear();
         }
+
+        System.out.println("Total:"+(passedByCache+passedByDatabase));
+        System.out.println("passedByDatabase:"+passedByDatabase);
+        System.out.println("passedByCache:"+passedByCache);
     }
 
 }

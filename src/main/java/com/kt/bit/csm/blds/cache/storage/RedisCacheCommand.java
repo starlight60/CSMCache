@@ -2,6 +2,7 @@ package com.kt.bit.csm.blds.cache.storage;
 
 import com.kt.bit.csm.blds.cache.CacheCommand;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.exceptions.JedisException;
 
 import java.io.IOException;
 
@@ -65,10 +66,18 @@ public class RedisCacheCommand implements CacheCommand {
             cacheManager =  RedisCacheManager.getInstance();
             jedis = cacheManager.borrow();
 
+            try {
             if(jedis != null && key != null && value != null){
                 if( key instanceof String)  jedis.setex((String)key, this.ttl, (String)value);
                 else if( key instanceof byte[])  jedis.setex((byte[])key, this.ttl, (byte[])value);
             }
+            } catch (JedisException e) {
+                System.out.println("1:"+e.getMessage());
+                e.printStackTrace();
+            } catch (ClassCastException e) {
+                System.out.println("2:"+e.getMessage());
+                e.printStackTrace();
+             }
         } catch (IOException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         } finally {

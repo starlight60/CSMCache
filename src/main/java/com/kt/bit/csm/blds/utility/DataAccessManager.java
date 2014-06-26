@@ -116,7 +116,7 @@ public class DataAccessManager {
          *  5. Cache 대상이 아닌 경우도 기존 로직 수행
          */
         try {
-            if (cacheMode == CacheManager.CacheMode.CACHE_MODE_ON)
+            if (cacheMode == CacheManager.CacheMode.CACHE_MODE_ON || cacheMode == CacheManager.CacheMode.CACHE_READ_ONLY)
                 isCacheTarget = this.cacheManager.isCacheTarget(spName);
 
             if(isCacheTarget){
@@ -140,7 +140,7 @@ public class DataAccessManager {
             deptResultSet = (OracleResultSet) oraCallStmt.getObject(outParamName);
             sdpResultSet = new DatabaseResultSet(deptResultSet, oraCallStmt);
 
-            if(isCacheTarget && key != null && cacheManager.isCacheOn()){
+            if(isCacheTarget && key != null && cacheManager.isCacheOn() && cacheMode != CacheManager.CacheMode.CACHE_READ_ONLY){
                 sdpResultSet = this.cacheManager.saveResultSetToCache(spName, key, sdpResultSet);
             }
         }

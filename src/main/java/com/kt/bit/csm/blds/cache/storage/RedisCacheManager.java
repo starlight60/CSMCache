@@ -46,15 +46,19 @@ public class RedisCacheManager implements CacheManager {
         return instance;
     }
 
+    public static RedisCacheManager getInstance(String host, int port, int timeout) throws IOException {
+        if(instance == null){
+            synchronized (RedisCacheManager.class) {
+                instance = new RedisCacheManager(host, port, timeout);
+                instance.init();
+            }
+        }
+        return instance;
+    }
+
     private JedisPool pool;
 
     private void init() throws IOException {
-
-        // Load basic properties
-        Properties properties = PropertyManager.loadPropertyFromFile(redisConfigFilePath, redisConfigFileKey);
-        this.host = properties.getProperty("redis.host");
-        this.port = Integer.valueOf(properties.getProperty("redis.port"));
-        this.timeout = Integer.valueOf(properties.getProperty("redis.timeoutInMS"));
 
         pool = new JedisPool(new JedisPoolConfig(), this.host, this.port, this.timeout);
 
@@ -80,6 +84,22 @@ public class RedisCacheManager implements CacheManager {
     private RedisCacheManager() throws IOException, NumberFormatException {
 
         formatter = GsonDataFormatter.getInstance();
+
+        // Load basic properties
+        Properties properties = PropertyManager.loadPropertyFromFile(redisConfigFilePath, redisConfigFileKey);
+        this.host = properties.getProperty("redis.host");
+        this.port = Integer.valueOf(properties.getProperty("redis.port"));
+        this.timeout = Integer.valueOf(properties.getProperty("redis.timeoutInMS"));
+
+    }
+
+    private RedisCacheManager(String host, int port, int timeoutInMS) throws IOException, NumberFormatException {
+
+        formatter = GsonDataFormatter.getInstance();
+
+        this.host = host;
+        this.port = port;
+        this.timeout = timeoutInMS;
 
     }
 
