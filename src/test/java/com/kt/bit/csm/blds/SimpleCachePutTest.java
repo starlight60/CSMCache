@@ -41,9 +41,9 @@ public class SimpleCachePutTest extends AbstractBenchmark {
     }
 
 
-    @BenchmarkOptions(benchmarkRounds = 300000, warmupRounds = 2, concurrency = 100)
+    @BenchmarkOptions(benchmarkRounds = 1000000, warmupRounds = 2, concurrency = 5)
     @Test
-    public void asynchCachePut(){
+    public void syncCachePut(){
         try{
             RedisCacheCommand command = new RedisCacheCommand(CacheCommand.CACHE_WORK_MODE_PUT, "key" + Math.random() * 1000000, value, 600);
 //            command.doPut();
@@ -54,7 +54,6 @@ public class SimpleCachePutTest extends AbstractBenchmark {
             work.processCommand();
 
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 

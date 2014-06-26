@@ -24,10 +24,14 @@ public class CachePropertyConfiguration extends AbstractConfiguration {
 	    loadProperties();
 	}
 
-	
 	private void loadProperties() throws IOException {
 		Properties properties = new Properties();
-		properties.load(Thread.currentThread().getContextClassLoader().getResourceAsStream(file.getName()));
+
+        if (file.getName().startsWith("/"))
+            properties.load(new FileInputStream(file));
+        else
+            properties.load(Thread.currentThread().getContextClassLoader().getResourceAsStream(file.getName()));
+
 		setAllProperties(properties);
 	}
 

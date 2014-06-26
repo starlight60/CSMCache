@@ -4,8 +4,10 @@ import com.kt.bit.csm.blds.cache.CacheManager;
 import com.kt.bit.csm.blds.cache.CachePolicy;
 import com.kt.bit.csm.blds.cache.CachedResultSet;
 import com.kt.bit.csm.blds.cache.storage.RedisCacheManager;
-import com.kt.bit.csm.blds.utility.*;
 import com.kt.bit.csm.blds.utility.CSMResultSet;
+import com.kt.bit.csm.blds.utility.DAMParam;
+import com.kt.bit.csm.blds.utility.DataAccessManager;
+import com.kt.bit.csm.blds.utility.DatabaseResultSet;
 import oracle.jdbc.OracleTypes;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -16,11 +18,10 @@ import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
-public class BasicTest {
+public class CacheOnOffTest {
 
     private static String sales_year = "2007";
     private static String staff = "1";
@@ -31,8 +32,9 @@ public class BasicTest {
 
     public static Object[] expectedDataList = new Object[]{ "1    ", "A", "CEO", "CEO", "2007", 7000, 6500, 500, "ABCD1234", new Timestamp(1051963364000L), new Date(1051887600000L), null };
 
-    @BeforeClass
-    public static void callAndMakeCachedata() throws Exception {
+
+    @Test
+    public void tryTurnOff() throws Exception {
 
         // Clean up cache if exists
         CacheManager cm = RedisCacheManager.getInstance();
@@ -41,19 +43,28 @@ public class BasicTest {
         }
 
         cm.addCachePolicy(spName, new CachePolicy());
+        cm.setCacheOn(false);
 
         // Make cache
         DataAccessManager dam = new DataAccessManager();
         CSMResultSet rs = dam.executeStoredProcedureForQuery(spName, returnParamName, param);
 
-        checkCachedRow(rs);
+        checkDatabaseRow(rs);
 
         rs.close();
-
     }
 
     @Test
-    public void tryToGetCache() throws Exception {
+    public void tryTurnOn() throws Exception {
+
+        // Clean up cache if exists
+        CacheManager cm = RedisCacheManager.getInstance();
+        if (cm.exists(cm.makeKey(spName, param))) {
+            cm.clear();
+        }
+
+        cm.addCachePolicy(spName, new CachePolicy());
+        cm.setCacheOn(true);
 
         // Make cache
         DataAccessManager dam = new DataAccessManager();
@@ -67,6 +78,10 @@ public class BasicTest {
     public static void checkCachedRow(CSMResultSet rs) throws SQLException {
         assertTrue("Result is not CachedResultSet type", rs instanceof CachedResultSet);
         assertTrue("Row count must be 1, count:" + rs.getRowCount(), rs.getRowCount() == 1);
+        _check(rs);
+    }
+
+    private static void _check(CSMResultSet rs) throws SQLException {
 
         rs.next();
 
@@ -90,6 +105,11 @@ public class BasicTest {
 
             i++;
         }
+    }
+
+    public static void checkDatabaseRow(CSMResultSet rs) throws SQLException {
+        assertTrue("Result is not DatabaseResultSet type", rs instanceof DatabaseResultSet);
+        _check(rs);
     }
 
     @AfterClass

@@ -32,7 +32,7 @@ public class DataAccessManager {
 
 	/**
 	 * Default constructor.
-	 * 
+	 *
 	 * @throws Exception
 	 *             the exception
 	 */
@@ -115,12 +115,16 @@ public class DataAccessManager {
          *  4. Cache 에 존재하지 않는 경우 기존 로직 수행
          *  5. Cache 대상이 아닌 경우도 기존 로직 수행
          */
-        if (cacheMode == CacheManager.CacheMode.CACHE_MODE_ON)
-            isCacheTarget = this.cacheManager.isCacheTarget(spName);
+        try {
+            if (cacheMode == CacheManager.CacheMode.CACHE_MODE_ON)
+                isCacheTarget = this.cacheManager.isCacheTarget(spName);
 
-        if(isCacheTarget){
-            key = cacheManager.makeKey(spName, param);
-            sdpResultSet = this.cacheManager.getResultSet(key);
+            if(isCacheTarget){
+                key = cacheManager.makeKey(spName, param);
+                sdpResultSet = this.cacheManager.getResultSet(key);
+            }
+        } catch (Exception e) {
+            // TODO : skip, but we should generate the log for this exception
         }
 
         if( sdpResultSet == null ){
@@ -135,13 +139,7 @@ public class DataAccessManager {
             deptResultSet = (OracleResultSet) oraCallStmt.getObject(outParamName);
             sdpResultSet = new DatabaseResultSet(deptResultSet, oraCallStmt);
 
-            /**
-             *  cache 에서 Data 를 조회하는 구간
-             *  1. Cache  대상인지 확인
-             *  2. Cache 대상인 경우 Cache 에 저장( 비동기 처리검토가 필요 )
-             *  3. csmResultSet return.
-             */
-            if(isCacheTarget && key != null){
+            if(isCacheTarget && key != null && cacheManager.isCacheOn()){
                 sdpResultSet = this.cacheManager.saveResultSetToCache(spName, key, sdpResultSet);
             }
         }

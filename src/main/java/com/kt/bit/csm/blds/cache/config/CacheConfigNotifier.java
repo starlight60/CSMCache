@@ -76,10 +76,10 @@ public class CacheConfigNotifier {
 			in = new FileInputStream(file);
 			configuration.load(in);
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
+            // TODO: Add logging
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+            // TODO: Add logging
 			e.printStackTrace();
 		}
 		

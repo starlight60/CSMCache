@@ -53,7 +53,6 @@ public class AsynchCachePutTest extends AbstractBenchmark {
         try{
             cm.asynchSet(String.valueOf("key" + Math.random() * 10000), value, 600);
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 

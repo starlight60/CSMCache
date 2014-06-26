@@ -7,6 +7,7 @@ import com.kt.bit.csm.blds.cache.config.CacheConfigManager;
 import com.kt.bit.csm.blds.utility.*;
 
 import com.kt.bit.csm.blds.utility.serializer.GsonDataFormatter;
+import org.apache.commons.lang.StringUtils;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -27,14 +28,11 @@ public class RedisCacheManager implements CacheManager {
     public ConcurrentHashMap<String,CachePolicy> cacheTargetList = new ConcurrentHashMap<String,CachePolicy>();
     public static RedisCacheManager instance = null;
 
-    public static final String configFilePath = "redis-config.properties";     // The file should be within classpath
-    public static final String cacheConfigFilePath = "cache-config.properties";     // The file should be within classpath
-    public static final String cachePolicyFilePath = "cache-policy.properties";     // The file should be within classpath
+    public static final String redisConfigFilePath = "redis-config.properties";     // The file should be within classpath
+    public static final String redisConfigFileKey = "redis.config.file";
 
     private RedisCacheSetQueueManager queue = null;
-
     private DataFormatter formatter;
-
     private CacheEnvironments env;
 
     public static RedisCacheManager getInstance() throws IOException {
@@ -52,8 +50,7 @@ public class RedisCacheManager implements CacheManager {
     private void init() throws IOException {
 
         // Load basic properties
-        Properties properties = new Properties();
-        properties.load(Thread.currentThread().getContextClassLoader().getResourceAsStream(configFilePath));
+        Properties properties = PropertyManager.loadPropertyFromFile(redisConfigFilePath, redisConfigFileKey);
         this.host = properties.getProperty("redis.host");
         this.port = Integer.valueOf(properties.getProperty("redis.port"));
 
@@ -61,8 +58,8 @@ public class RedisCacheManager implements CacheManager {
 
         // Load Cache Config, Policy Properties Files and Monitoring
         CacheConfigManager manager = CacheConfigManager.getInstance();
-        manager.setPropertyChangeListener("cache-config", cacheConfigFilePath, 60000);
-        manager.setPropertyChangeListener("cache-policy", cachePolicyFilePath, 60000);
+        manager.setPropertyChangeListener("cache-config", cacheConfigFilePath, cacheConfigFileKey, 60000);
+        manager.setPropertyChangeListener("cache-policy", cachePolicyFilePath, cachePolicyFileKey, 60000);
 
         env = CacheEnvironments.getInstance();
 
@@ -555,10 +552,15 @@ public class RedisCacheManager implements CacheManager {
         return resultSet;
     }
 
-    public CachedResultSet saveResultSetToCache(String spName, String key, CSMResultSet result) {
+    public CachedResultSet saveResultSetToCache(String spName, String key, CSMResultSet result) throws SQLException {
 
-        assert result instanceof DatabaseResultSet;
-        assert spName != null && spName.length()>0;
+        if (!(result instanceof DatabaseResultSet)) {
+            throw new IllegalArgumentException("the data to be cached must be DatabaseResultSet");
+        }
+
+        if (StringUtils.isEmpty(spName)) {
+            throw new IllegalArgumentException("spName must not be empty");
+        }
 
         final CachePolicy policy = cacheTargetList.get(spName);
         final CachedResultSet cachedResultSet = makeCachedResultSet(spName, result, policy);
@@ -570,71 +572,66 @@ public class RedisCacheManager implements CacheManager {
         return cachedResultSet;
     }
 
-    public CachedResultSet makeCachedResultSet(String spName, CSMResultSet result, CachePolicy policy) {
+    public CachedResultSet makeCachedResultSet(String spName, CSMResultSet result, CachePolicy policy) throws SQLException {
 
-        assert result instanceof DatabaseResultSet;
-        assert spName != null && spName.length()>0;
-
-        DatabaseResultSet resultInCSM = (DatabaseResultSet) result;
-
-        try {
-            ResultSetMetaData meta = result.getMetaData();
-            CachedResultSet cachedResultSet = new CachedResultSet();
-            int colCount = meta.getColumnCount();
-            int rowCount = 0;
-
-            /**
-             * TO-DO : 2014.06.23
-             * ---------------------------
-             * Add multi-rows select according to the Policy of Stored Procedure Name
-             * If isMultiRow == true and MaxCount == -1, that means read full rows.
-             * If isMultiRow == true and MaxCount is any number, that means read rows to MaxCount.
-             * If isNultiRow == false, that means only one row.
-             *
-             */
-            int totalCount;
-            if (policy.isMultiRow()) {
-                if (policy.isMultiRow() && policy.getMaxCount() == 0) {
-                    throw new IllegalArgumentException(spName + " Fetch Size Policy is invalid.");
-                }
-
-                if (policy.getFetchSize().equals(CacheFetchConstants.FETCH_SIZE)) {
-                    totalCount = result.getFetchSize();
-                }
-                else if (policy.getFetchSize().equals(CacheFetchConstants.FETCH_ALL)) {
-                    totalCount = -1;
-                }
-                else {
-                    totalCount = 1;
-                }
-
-            }
-            else {
-                totalCount = 1;
-            }
-
-            while( result.next() ){
-                CacheColumn[] cacheColumns = new CacheColumn[colCount];
-                for(int i=1; i <= colCount;i++){
-                    cacheColumns[i-1] = new CacheColumn(meta.getColumnName(i), meta.getColumnType(i), resultInCSM.getObject(i));
-                }
-                cachedResultSet.addRow(cacheColumns, rowCount);
-                rowCount++;
-
-                if ((totalCount != -1) && (rowCount == totalCount)) {
-                    break;
-                }
-            }
-
-            return cachedResultSet;
-
-        } catch (SQLException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (Exception e){
-            e.printStackTrace();
+        if (!(result instanceof DatabaseResultSet)) {
+            throw new IllegalArgumentException("the data to be cached must be DatabaseResultSet");
         }
 
-        return null;
+        if (StringUtils.isEmpty(spName)) {
+            throw new IllegalArgumentException("spName must not be empty");
+        }
+
+        if (policy==null) return null;
+
+        // Make Cache ResultSet from Database ResultSet
+        {
+            final DatabaseResultSet databaseResultSet = (DatabaseResultSet) result;
+
+            try {
+                final ResultSetMetaData meta = result.getMetaData();
+                final CachedResultSet cachedResultSet = new CachedResultSet();
+                final CachedResultSetMetadata crsm = (CachedResultSetMetadata) cachedResultSet.getMetaData();
+
+                // Column Count / Index
+                int colCount = meta.getColumnCount();
+                crsm.setColumnCount(colCount);
+
+                // Row Count
+                int rowCount = 0, totalCount;
+                if (policy.isMultiRow()) {
+                    if (policy.isMultiRow() && policy.getMaxCount() == 0)
+                        throw new IllegalArgumentException(spName + " Fetch Size Policy is invalid.");
+
+                    // Fetch
+                    if (policy.getFetchSize().equals(CacheFetchConstants.FETCH_SIZE))
+                        totalCount = databaseResultSet.getFetchSize();
+                    else if (policy.getFetchSize().equals(CacheFetchConstants.FETCH_ALL))
+                        totalCount = -1;
+                    else totalCount = 1;
+                } else totalCount = 1;
+
+                while ( databaseResultSet.next() ){
+                    CacheColumn[] cacheColumns = new CacheColumn[colCount];
+                    for(int i=1; i <= colCount;i++){
+                        final String columnName = meta.getColumnName(i);
+                        cacheColumns[i-1] = new CacheColumn(columnName, meta.getColumnType(i), databaseResultSet.getObject(i));
+                        crsm.addColumnIndex(i, columnName);
+                    }
+                    cachedResultSet.addRow(cacheColumns, rowCount);
+                    rowCount++;
+
+                    if ((totalCount != -1) && (rowCount == totalCount)) {
+                        break;
+                    }
+                }
+
+                return cachedResultSet;
+
+            } catch (SQLException e) {
+                throw e;
+            }
+        }
     }
 
     /**

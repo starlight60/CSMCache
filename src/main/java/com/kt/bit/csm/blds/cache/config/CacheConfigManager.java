@@ -2,6 +2,7 @@ package com.kt.bit.csm.blds.cache.config;
 
 import com.kt.bit.csm.blds.cache.CacheManager;
 import com.kt.bit.csm.blds.cache.storage.RedisCacheManager;
+import org.apache.commons.lang.StringUtils;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -23,42 +24,48 @@ public class CacheConfigManager {
 	private CacheConfigManager() {
 	}
 	
-	public void setPropertyChangeListener(String fileName, int period) {
-		
-		try {
+	public void setPropertyChangeListener(String fileName, String propertyKey, int period) throws IOException {
 
+        String propertyValue = null;
+        if (StringUtils.isNotEmpty(propertyKey)) propertyValue = System.getProperty(propertyKey);
+
+        if (StringUtils.isNotEmpty(propertyValue))
+            cfg = new CachePropertyConfiguration(propertyValue, period);
+        else
             cfg = new CachePropertyConfiguration(fileName, period);
-			cfg.addPropertyChangeListener(new PropertyChangeListener() {
-				public void propertyChange(PropertyChangeEvent evt) {
-					System.out.println("Property " + evt.getPropertyName() + " has now changed from <" + evt.getOldValue() + "> to <" + evt.getNewValue() + ">");
-				}
-			});
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+
+        cfg.addPropertyChangeListener(new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent evt) {
+                // TODO: Add logging
+                System.out.println("Property " + evt.getPropertyName() + " has now changed from <" + evt.getOldValue() + "> to <" + evt.getNewValue() + ">");
+            }
+        });
 		
 	}
 	
-	public void setPropertyChangeListener(String keyword, String fileName, int period) {
-		
-		try {
-			if (cacheConfigMap.containsKey(keyword)) {
-				throw new IllegalArgumentException("Configuration Change Listener for [" + keyword + "] already exists.");
-			}
-			
-			CacheConfiguration keyCfg = new CachePropertyConfiguration(fileName, period);
-			keyCfg.addPropertyChangeListener(new PropertyChangeListener() {
-				public void propertyChange(PropertyChangeEvent evt) {
-					System.out.println("Property " + evt.getPropertyName() + " has now changed from <" + evt.getOldValue() + "> to <" + evt.getNewValue() + ">");
-				}
-			});
-			
-			cacheConfigMap.put(keyword, keyCfg);
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	public void setPropertyChangeListener(String keyword, String fileName, String propertyKey, int period) throws IOException {
+
+        if (cacheConfigMap.containsKey(keyword)) {
+            throw new IllegalArgumentException("Configuration Change Listener for [" + keyword + "] already exists.");
+        }
+
+        String propertyValue = null;
+        if (StringUtils.isNotEmpty(propertyKey)) propertyValue = System.getProperty(propertyKey);
+
+        CacheConfiguration keyCfg;
+        if (StringUtils.isNotEmpty(propertyValue))
+            keyCfg = new CachePropertyConfiguration(propertyValue, period);
+        else
+            keyCfg = new CachePropertyConfiguration(fileName, period);
+
+        keyCfg.addPropertyChangeListener(new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent evt) {
+                // TODO: Add logging
+            System.out.println("Property " + evt.getPropertyName() + " has now changed from <" + evt.getOldValue() + "> to <" + evt.getNewValue() + ">");
+            }
+        });
+
+        cacheConfigMap.put(keyword, keyCfg);
 		
 	}
 	

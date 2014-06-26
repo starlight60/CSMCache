@@ -2,6 +2,7 @@ package com.kt.bit.csm.blds.cache;
 
 import com.kt.bit.csm.blds.utility.CSMResultSet;
 import com.kt.bit.csm.blds.utility.DatabaseResultSet;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.Serializable;
 import java.sql.*;
@@ -11,9 +12,6 @@ import java.util.ListIterator;
 
 import static com.kt.bit.csm.blds.cache.util.JDBCTypeMappingUtil.*;
 
-/**
- * Todo: Exception (eg. check the status and manipulate error if the user call "get" without calling "next"
- */
 public class CachedResultSet implements Serializable, CSMResultSet {
 
     private static final long serialVersionUID = 2815450470746294066L;
@@ -21,12 +19,14 @@ public class CachedResultSet implements Serializable, CSMResultSet {
     private List<CacheRow> cacheRows;
     private ListIterator iterator;
     private CacheRow currentCacheRow;
+    private CachedResultSetMetadata metaData;
     private int currentIndex = 1;
 
     private int dataSourceType = DatabaseResultSet.RESULT_MODE_CACHE;
 
     public CachedResultSet(){
         this.cacheRows = new ArrayList<CacheRow>();
+        this.metaData = new CachedResultSetMetadata();
         currentIndex = 1;
     }
 
@@ -66,55 +66,67 @@ public class CachedResultSet implements Serializable, CSMResultSet {
         else
             return false;
     }
+    
+    private CacheColumn getCacheColumn(final Object i) throws SQLException {
+        
+        if (currentCacheRow==null) throw new SQLException("please next() call first");
+        
+        if (i instanceof Integer) {
+            Integer ii = (Integer) i;
+            if (ii>metaData.getColumnCount()) {
+                throw new SQLException(i+" is over than column count:("+metaData.getColumnCount()+")");
+            }
+            final String columnName = metaData.getColumnName(ii);
+            if (StringUtils.isEmpty(columnName)) {
+                throw new SQLException("column name invalid");
+            }
+            return currentCacheRow.getColumn(columnName);
+        }
+        else if (i instanceof String)
+            return currentCacheRow.getColumn((String) i);
+        
+        throw new SQLException("the argument must be column index or name");
+
+    }
 
     public String getString(int idx) throws SQLException{
-        final CacheColumn column = currentCacheRow.getColumn(idx);
-        return (column!=null) ? _getString(column.getValue()):null;
+        return _getString(getCacheColumn(idx));
     }
 
     public String getString(String name) throws SQLException{
-        final CacheColumn column = currentCacheRow.getColumn(name);
-        return (column!=null) ? _getString(column.getValue()):null;
+        return _getString(getCacheColumn(name));
     }
 
     public Integer getInt(int idx) throws SQLException{
-        final CacheColumn column = currentCacheRow.getColumn(idx);
-        return (column!=null) ? _getInt(column.getValue()):null;
+        return _getInt(getCacheColumn(idx));
     }
 
     public Integer getInt(String name) throws SQLException{
-        final CacheColumn column = currentCacheRow.getColumn(name);
-        return (column!=null) ? _getInt(column.getValue()):null;
+        return _getInt(getCacheColumn(name));
     }
 
     public Long getLong(int idx) throws SQLException{
-        final CacheColumn column = currentCacheRow.getColumn(idx);
-        return (column!=null) ? _getLong(column.getValue()):null;
+        return _getLong(getCacheColumn(idx));
     }
 
     public Long getLong(String name) throws SQLException{
-        final CacheColumn column = currentCacheRow.getColumn(name);
-        return (column!=null) ? _getLong(column.getValue()):null;
+        return _getLong(getCacheColumn(name));
     }
 
     public Date getDate(int idx) throws SQLException{
-        final CacheColumn column = currentCacheRow.getColumn(idx);
-        return (column!=null) ? _getDate(column.getValue()):null;
+        return _getDate(getCacheColumn(idx));
     }
 
     public Date getDate(String name) throws SQLException{
-        final CacheColumn column = currentCacheRow.getColumn(name);
-        return (column!=null) ? _getDate(column.getValue()):null;
+        return _getDate(getCacheColumn(name));
     }
 
     public Timestamp getTimestamp(int idx) throws SQLException {
-        final CacheColumn column = currentCacheRow.getColumn(idx);
-        return (column!=null) ? _getTimestamp(column.getValue()):null;
+        return _getTimestamp(getCacheColumn(idx));
     }
 
     public Timestamp getTimestamp(String name) throws SQLException {
-        final CacheColumn column = currentCacheRow.getColumn(name);
-        return (column!=null) ? _getTimestamp(column.getValue()):null;
+        return _getTimestamp(getCacheColumn(name));
     }
 
     public int getRow() throws SQLException {
@@ -122,22 +134,19 @@ public class CachedResultSet implements Serializable, CSMResultSet {
     }
 
     public byte[] getBytes(String name) throws SQLException {
-        final CacheColumn column = currentCacheRow.getColumn(name);
-        return (column!=null) ? _getBytes(column.getValue()):null;
+        return _getBytes(getCacheColumn(name));
     }
 
     public byte[] getBytes(int idx) throws SQLException {
-        final CacheColumn column = currentCacheRow.getColumn(idx);
-        return (column!=null) ? _getBytes(column.getValue()):null;
+        return _getBytes(getCacheColumn(idx));
     }
 
-    /**
-     * TODO: please implement this procedure
-     * @return
-     * @throws SQLException
-     */
     public ResultSetMetaData getMetaData() throws SQLException {
-        return null;
+        return metaData;
+    }
+
+    public void setMetaData(CachedResultSetMetadata metaData) {
+        this.metaData = metaData;
     }
 
     public void close() throws SQLException {

@@ -22,7 +22,7 @@ public class ConfigPropertyConfigurationTest {
 		try {
 			
 			CacheConfigManager manager = CacheConfigManager.getInstance();
-			manager.setPropertyChangeListener(fileName1, 100);
+			manager.setPropertyChangeListener(fileName1, null, 100);
 			
 			CacheEnvironments env = CacheEnvironments.getInstance();
 			RedisCacheManager rm = RedisCacheManager.getInstance();
@@ -52,10 +52,8 @@ public class ConfigPropertyConfigurationTest {
 			}
 			
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -117,10 +115,8 @@ public class ConfigPropertyConfigurationTest {
 			}
 			
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		

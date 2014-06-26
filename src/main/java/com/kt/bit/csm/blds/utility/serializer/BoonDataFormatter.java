@@ -6,6 +6,7 @@ import org.boon.Boon;
 
 import javax.swing.text.DateFormatter;
 
+@Deprecated
 public class BoonDataFormatter implements DataFormatter {
 
     private volatile static DataFormatter instance;

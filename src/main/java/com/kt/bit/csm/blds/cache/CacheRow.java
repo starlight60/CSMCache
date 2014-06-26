@@ -17,7 +17,6 @@ public class CacheRow implements Serializable {
         for( int i = 1; i <= cacheColumns.length ; i++ ){
             int dataColumnIndex = i-1;
             this.cacheColumns.put(cacheColumns[dataColumnIndex].getName(), cacheColumns[dataColumnIndex]);
-            this.cacheColumns.put(String.valueOf(i), cacheColumns[dataColumnIndex]);
         }
         this.rowIndex = cacheColumns.length;
     }
@@ -27,7 +26,6 @@ public class CacheRow implements Serializable {
         for( int i = 1; i <= cacheColumns.length ; i++ ){
             int dataColumnIndex = i-1;
             this.cacheColumns.put(cacheColumns[dataColumnIndex].getName(), cacheColumns[dataColumnIndex]);
-            this.cacheColumns.put(String.valueOf(i), cacheColumns[dataColumnIndex]);
         }
         this.rowIndex = rowIndex;
     }

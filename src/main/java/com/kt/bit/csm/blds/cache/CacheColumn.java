@@ -29,7 +29,7 @@ public class CacheColumn implements Serializable {
         this.name = name;
     }
 
-    Object getValue() {
+    public Object getValue() {
         return value;
     }
 

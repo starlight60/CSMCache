@@ -31,7 +31,6 @@ public class OnTheFlyTest {
 			DataAccessManager dam = new DataAccessManager();
 			dam.executeStoredProcedureForQuery("SP_NAME_TEST1", "", null);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		

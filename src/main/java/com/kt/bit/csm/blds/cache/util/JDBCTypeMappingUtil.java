@@ -1,5 +1,6 @@
 package com.kt.bit.csm.blds.cache.util;
 
+import com.kt.bit.csm.blds.cache.CacheColumn;
 import oracle.jdbc.util.RepConversion;
 
 import java.math.BigDecimal;
@@ -11,7 +12,8 @@ import java.util.List;
 
 public class JDBCTypeMappingUtil {
 
-    public static String _getString(final Object value) throws SQLException {
+    public static String _getString(final CacheColumn cacheColumn) throws SQLException {
+        final Object value = fromColumn(cacheColumn);
         if (value == null) return null;
         else if (value instanceof String)
             return (String)value;
@@ -36,7 +38,8 @@ public class JDBCTypeMappingUtil {
         return bytes;
     }
 
-    public static Integer _getInt(final Object value) throws SQLException {
+    public static Integer _getInt(final CacheColumn cacheColumn) throws SQLException {
+        final Object value = fromColumn(cacheColumn);
         if (value == null) return null;
         else if( value instanceof BigDecimal) {
             return ((BigDecimal) value).intValue();
@@ -47,7 +50,8 @@ public class JDBCTypeMappingUtil {
         else throw new SQLException( "type mismatch in cachedResultSet (expected int, but "+value.getClass().getName()+", (value:"+value+"))" );
     }
 
-    public static Long _getLong(final Object value) throws SQLException {
+    public static Long _getLong(final CacheColumn cacheColumn) throws SQLException {
+        final Object value = fromColumn(cacheColumn);
         if (value == null) return null;
         else if( value instanceof BigDecimal)
             return ((BigDecimal) value).longValue();
@@ -60,7 +64,8 @@ public class JDBCTypeMappingUtil {
         else throw new SQLException( "type mismatch in cachedResultSet (expected Long, but "+value.getClass().getName()+", (value:"+value+"))" );
     }
 
-    public static Date _getDate(final Object value) throws SQLException {
+    public static Date _getDate(final CacheColumn cacheColumn) throws SQLException {
+        final Object value = fromColumn(cacheColumn);
         if (value == null) return null;
         // From JDBC
         else if( value instanceof Timestamp)
@@ -83,7 +88,8 @@ public class JDBCTypeMappingUtil {
         return (date.getTime() - date.getTime() % 86400000) - cal.getTimeZone().getRawOffset();
     }
 
-    public static Timestamp _getTimestamp(final Object value) throws SQLException {
+    public static Timestamp _getTimestamp(final CacheColumn cacheColumn) throws SQLException {
+        final Object value = fromColumn(cacheColumn);
         if (value == null) return null;
         // From JDBC
         else if (value instanceof Timestamp)
@@ -100,8 +106,14 @@ public class JDBCTypeMappingUtil {
         } else throw new SQLException( "type mismatch in cachedResultSet (expected Timestamp, but "+value.getClass().getName()+", (value:"+value+"))" );
     }
 
-    public static byte[] _getBytes(final Object value) throws SQLException {
-        if( value instanceof byte[] )
+    private static Object fromColumn(final CacheColumn column) {
+        return (column!=null) ? column.getValue():null;
+    }
+
+    public static byte[] _getBytes(final CacheColumn cacheColumn) throws SQLException {
+        final Object value = fromColumn(cacheColumn);
+        if (value == null) return null;
+        else if( value instanceof byte[] )
             return (byte[]) value;
         else throw new SQLException( "type mismatch in cachedResultSet (expected byte[], but "+value.getClass().getName()+", (value:"+value+"))" );
     }
