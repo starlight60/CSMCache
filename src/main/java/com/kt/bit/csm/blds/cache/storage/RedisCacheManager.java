@@ -5,6 +5,7 @@ import com.github.jedis.lock.JedisLock;
 import com.kt.bit.csm.blds.cache.*;
 import com.kt.bit.csm.blds.cache.config.CacheConfigManager;
 import com.kt.bit.csm.blds.cache.util.DataFormatter;
+import com.kt.bit.csm.blds.cache.util.JDBCTypeMappingUtil;
 import com.kt.bit.csm.blds.cache.util.PropertyManager;
 import com.kt.bit.csm.blds.cache.util.serializer.GsonDataFormatter;
 import com.kt.bit.csm.blds.utility.*;
@@ -38,6 +39,8 @@ public class RedisCacheManager implements CacheManager {
     private RedisCacheSetQueueManager queue = null;
     private DataFormatter formatter;
     private CacheEnvironments env;
+
+    private Properties common;
 
     public static RedisCacheManager getInstance() throws IOException {
         if(instance == null){
@@ -84,6 +87,9 @@ public class RedisCacheManager implements CacheManager {
             // Redis Cache 접속이실패하는 경우 Cache 를 사용하지 않도록 설정함.
             this.setCacheOn(false);
         }
+
+        common = PropertyManager.loadPropertyFromFile(cacheConfigFilePath, cacheConfigFileKey);
+        JDBCTypeMappingUtil.init(common);
     }
 
     private RedisCacheManager() throws IOException, NumberFormatException {
@@ -915,4 +921,9 @@ public class RedisCacheManager implements CacheManager {
     public void setCacheOn(boolean cacheOn) {
         this.cacheOn.set(cacheOn);
     }
+
+    public Properties getCommonProperties() {
+        return common;
+    }
+
 }

@@ -13,6 +13,8 @@ package com.kt.bit.csm.blds.utility;
 
 import com.kt.bit.csm.blds.cache.CacheManager;
 import com.kt.bit.csm.blds.cache.storage.RedisCacheManager;
+import com.kt.bit.csm.blds.cache.util.JDBCTypeMappingUtil;
+import com.kt.bit.csm.blds.cache.util.PropertyManager;
 import oracle.jdbc.OracleCallableStatement;
 import oracle.jdbc.OracleResultSet;
 import oracle.jdbc.OracleTypes;

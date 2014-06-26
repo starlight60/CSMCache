@@ -10,10 +10,16 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Properties;
 
 public class JDBCTypeMappingUtil {
 
-    public static String dateFormat = "yyyy-mm-dd hh:mm:ss";
+    public static String dateFormat = "yyyy-MM-dd HH:mm:ss";
+
+    public static void init(Properties properties) {
+        if (properties.containsKey("jdbc.date.format"))
+            dateFormat = properties.getProperty("jdbc.date.format");
+    }
 
     public static String _getString(final CacheColumn cacheColumn) throws SQLException {
         final Object value = fromColumn(cacheColumn);
