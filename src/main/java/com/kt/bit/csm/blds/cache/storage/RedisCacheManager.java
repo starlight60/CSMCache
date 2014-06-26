@@ -23,7 +23,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class RedisCacheManager implements CacheManager {
     private String  host;
     private int     port;
-    private int timeout;
+    private int readTimeout;
+    private int writeTimeout;
     
     private AtomicBoolean cacheOn = new AtomicBoolean(false);
     public ConcurrentHashMap<String,CachePolicy> cacheTargetList = new ConcurrentHashMap<String,CachePolicy>();
@@ -46,21 +47,23 @@ public class RedisCacheManager implements CacheManager {
         return instance;
     }
 
-    public static RedisCacheManager getInstance(String host, int port, int timeout) throws IOException {
+    public static RedisCacheManager getInstance(String host, int port, int readTimeout, int writeTimeout) throws IOException {
         if(instance == null){
             synchronized (RedisCacheManager.class) {
-                instance = new RedisCacheManager(host, port, timeout);
+                instance = new RedisCacheManager(host, port, readTimeout, writeTimeout);
                 instance.init();
             }
         }
         return instance;
     }
 
-    private JedisPool pool;
+    private JedisPool getPool;
+    private JedisPool setPool;
 
     private void init() throws IOException {
 
-        pool = new JedisPool(new JedisPoolConfig(), this.host, this.port, this.timeout);
+        getPool = new JedisPool(new JedisPoolConfig(), this.host, this.port, this.readTimeout);
+        setPool = new JedisPool(new JedisPoolConfig(), this.host, this.port, this.writeTimeout);
 
         // Load Cache Config, Policy Properties Files and Monitoring
         CacheConfigManager manager = CacheConfigManager.getInstance();
@@ -89,17 +92,18 @@ public class RedisCacheManager implements CacheManager {
         Properties properties = PropertyManager.loadPropertyFromFile(redisConfigFilePath, redisConfigFileKey);
         this.host = properties.getProperty("redis.host");
         this.port = Integer.valueOf(properties.getProperty("redis.port"));
-        this.timeout = Integer.valueOf(properties.getProperty("redis.timeoutInMS"));
+        this.readTimeout = Integer.valueOf(properties.getProperty("redis.read.timeoutInMS"));
+        this.writeTimeout = Integer.valueOf(properties.getProperty("redis.write.timeoutInMS"));
 
     }
 
-    private RedisCacheManager(String host, int port, int timeoutInMS) throws IOException, NumberFormatException {
+    private RedisCacheManager(String host, int port, int readTimeout, int writeTimeout) throws IOException, NumberFormatException {
 
         formatter = GsonDataFormatter.getInstance();
-
         this.host = host;
         this.port = port;
-        this.timeout = timeoutInMS;
+        this.readTimeout = readTimeout;
+        this.writeTimeout = writeTimeout;
 
     }
 
@@ -459,19 +463,19 @@ public class RedisCacheManager implements CacheManager {
     }
 
     public void asynchSet(String key, String value, int ttl){
-        queue.addCacheWork(new RedisCacheCommand(CacheCommand.CACHE_WORK_MODE_PUT, key, value, ttl));
+        if(queue != null ) queue.addCacheWork(new RedisCacheCommand(CacheCommand.CACHE_WORK_MODE_PUT, key, value, ttl));
     }
 
     public void asynchSet(String key, byte[] value, int ttl){
-        queue.addCacheWork(new RedisCacheCommand(CacheCommand.CACHE_WORK_MODE_PUT, key.getBytes(), value, ttl));
+        if(queue != null ) queue.addCacheWork(new RedisCacheCommand(CacheCommand.CACHE_WORK_MODE_PUT, key.getBytes(), value, ttl));
     }
 
     public void asynchSet(String key, String value){
-        queue.addCacheWork(new RedisCacheCommand(CacheCommand.CACHE_WORK_MODE_PUT, key, value));
+        if(queue != null ) queue.addCacheWork(new RedisCacheCommand(CacheCommand.CACHE_WORK_MODE_PUT, key, value));
     }
 
     public void asynchSet(String key, byte[] value){
-        queue.addCacheWork(new RedisCacheCommand(CacheCommand.CACHE_WORK_MODE_PUT, key.getBytes(), value));
+        if(queue != null ) queue.addCacheWork(new RedisCacheCommand(CacheCommand.CACHE_WORK_MODE_PUT, key.getBytes(), value));
     }
 
     /**
@@ -716,7 +720,8 @@ public class RedisCacheManager implements CacheManager {
      */
     public void destory() {
 
-        pool.destroy();
+        getPool.destroy();
+        setPool.destroy();
 
     }
 
@@ -726,8 +731,18 @@ public class RedisCacheManager implements CacheManager {
      */
     public Jedis borrow() {
 
-        return pool.getResource();
+        return getPool.getResource();
 
+    }
+
+    /**
+     *
+     * @return
+     */
+    public Jedis borrow( CacheResourceType cacheResourceType) {
+
+        if(cacheResourceType == CacheResourceType.SET_CACHE ) return setPool.getResource();
+        else return getPool.getResource();
     }
 
     /**
@@ -736,7 +751,14 @@ public class RedisCacheManager implements CacheManager {
      */
     public void revert(Jedis jedis) {
 
-        pool.returnResource(jedis);
+        getPool.returnResource(jedis);
+
+    }
+
+    public void revert(Jedis jedis, CacheResourceType cacheResourceType ) {
+
+        if(cacheResourceType == CacheResourceType.SET_CACHE ) setPool.returnResource(jedis);
+        else getPool.returnResource(jedis);
 
     }
 

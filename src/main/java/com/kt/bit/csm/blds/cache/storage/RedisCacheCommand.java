@@ -1,6 +1,7 @@
 package com.kt.bit.csm.blds.cache.storage;
 
 import com.kt.bit.csm.blds.cache.CacheCommand;
+import com.kt.bit.csm.blds.cache.CacheManager;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisException;
 
@@ -64,7 +65,7 @@ public class RedisCacheCommand implements CacheCommand {
         try {
 
             cacheManager =  RedisCacheManager.getInstance();
-            jedis = cacheManager.borrow();
+            jedis = cacheManager.borrow(CacheManager.CacheResourceType.SET_CACHE);
 
             try {
             if(jedis != null && key != null && value != null){
@@ -72,16 +73,14 @@ public class RedisCacheCommand implements CacheCommand {
                 else if( key instanceof byte[])  jedis.setex((byte[])key, this.ttl, (byte[])value);
             }
             } catch (JedisException e) {
-                System.out.println("1:"+e.getMessage());
                 e.printStackTrace();
             } catch (ClassCastException e) {
-                System.out.println("2:"+e.getMessage());
                 e.printStackTrace();
              }
         } catch (IOException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         } finally {
-            if( cacheManager != null ) cacheManager.revert(jedis);
+            if( cacheManager != null ) cacheManager.revert(jedis, CacheManager.CacheResourceType.SET_CACHE);
         }
     }
 

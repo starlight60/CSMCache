@@ -41,10 +41,11 @@ public class RedisTimeoutTest extends AbstractBenchmark {
         Properties properties = PropertyManager.loadPropertyFromFile(RedisCacheManager.redisConfigFilePath, RedisCacheManager.redisConfigFileKey);
         String host = properties.getProperty("redis.host");
         int port = Integer.valueOf(properties.getProperty("redis.port"));
-        int timeout = 5;
+        int readTimeout = 5;
+        int writeTimeout = 2000;
 
         // Clean up cache if exists
-        CacheManager cm = RedisCacheManager.getInstance(host, port, timeout);
+        CacheManager cm = RedisCacheManager.getInstance(host, port, readTimeout, writeTimeout);
         if (cm.exists(cm.makeKey(spName, param))) {
             cm.clear();
         }

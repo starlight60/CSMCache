@@ -12,6 +12,7 @@ import java.util.Set;
 public interface CacheManager {
 
     public static enum CacheMode { CACHE_MODE_ON, CACHE_MODE_OFF, CACHE_READ_ONLY };
+    public static enum CacheResourceType { GET_CAHCE, SET_CACHE };
     public static final String cacheConfigFilePath = "cache-config.properties";     // The file should be within classpath
     public static final String cachePolicyFilePath = "cache-policy.properties";     // The file should be within classpath
     public static final String cacheConfigFileKey = "cache.config.file";
