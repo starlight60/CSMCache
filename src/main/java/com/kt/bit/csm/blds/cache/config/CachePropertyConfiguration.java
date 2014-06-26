@@ -27,7 +27,9 @@ public class CachePropertyConfiguration extends AbstractConfiguration {
 	private void loadProperties() throws IOException {
 		Properties properties = new Properties();
 
-        if (file.getName().startsWith("/"))
+		System.out.println("File : " + file.getAbsolutePath());
+		
+        if (file.getAbsolutePath().contains("/") || file.getAbsolutePath().contains("\\"))
             properties.load(new FileInputStream(file));
         else
             properties.load(Thread.currentThread().getContextClassLoader().getResourceAsStream(file.getName()));
