@@ -120,7 +120,7 @@ public class DataAccessManager {
         try {
             if (
                     (cacheMode == CacheManager.CacheMode.CACHE_MODE_ON || cacheMode == CacheManager.CacheMode.CACHE_READ_ONLY)
-                    && cacheManager.isServerStatusOn()
+                    && cacheManager.isServerStatusOn() && cacheManager.isCacheOn()
             )
                 isCacheTarget = this.cacheManager.isCacheTarget(spName);
 
