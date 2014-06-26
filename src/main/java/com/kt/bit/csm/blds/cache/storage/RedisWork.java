@@ -2,12 +2,19 @@ package com.kt.bit.csm.blds.cache.storage;
 
 import com.kt.bit.csm.blds.cache.CacheCommand;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 public class RedisWork implements Runnable  {
     public CacheCommand command;
+    public JedisPool jedisPool;
 
     public RedisWork(CacheCommand command){
         this.command = command;
+    }
+
+    public RedisWork(CacheCommand command, JedisPool jedisPool){
+        this.command = command;
+        this.jedisPool = jedisPool;
     }
 
     public void run() {
@@ -21,8 +28,26 @@ public class RedisWork implements Runnable  {
 
 
     public void processCommand() throws Exception {
-        if( command instanceof RedisCacheCommand) command.doPut();
-        else throw new Exception("Redis Cache Work can only Redis job");
+        Jedis jedis = null;
+        try{
+            if( command instanceof RedisCacheCommand){
+                RedisCacheCommand redisCacheCommand = (RedisCacheCommand)command;
+                jedis = this.borrow();
+                redisCacheCommand.setJedis(jedis);
+                command.doPut();
+            }
+            else throw new Exception("Redis Cache Work can only Redis job");
+        }finally {
+            if(jedis != null) this.revert(jedis);
+        }
+    }
+
+    private Jedis borrow(){
+        return this.jedisPool.getResource();
+    }
+
+    private void revert(Jedis jedis){
+        this.jedisPool.returnResource(jedis);
     }
 
     public String toString(){

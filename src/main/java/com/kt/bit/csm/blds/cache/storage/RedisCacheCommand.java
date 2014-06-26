@@ -59,14 +59,12 @@ public class RedisCacheCommand implements CacheCommand {
         return this.cacheType;
     }
 
+    public void setJedis(Jedis jedis){
+        this.jedis = jedis;
+    }
+
     public void doPut(){
-        Jedis jedis = null;
-        RedisCacheManager cacheManager = null;
         try {
-
-            cacheManager =  RedisCacheManager.getInstance();
-            jedis = cacheManager.borrow(CacheManager.CacheResourceType.SET_CACHE);
-
             try {
             if(jedis != null && key != null && value != null){
                 if( key instanceof String)  jedis.setex((String)key, this.ttl, (String)value);
@@ -77,10 +75,8 @@ public class RedisCacheCommand implements CacheCommand {
             } catch (ClassCastException e) {
                 e.printStackTrace();
              }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } finally {
-            if( cacheManager != null ) cacheManager.revert(jedis, CacheManager.CacheResourceType.SET_CACHE);
         }
     }
 

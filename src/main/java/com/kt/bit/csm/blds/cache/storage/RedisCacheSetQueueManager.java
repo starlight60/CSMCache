@@ -1,6 +1,7 @@
 package com.kt.bit.csm.blds.cache.storage;
 
 import com.kt.bit.csm.blds.cache.CacheCommand;
+import redis.clients.jedis.JedisPool;
 
 import java.util.concurrent.*;
 
@@ -12,24 +13,28 @@ import java.util.concurrent.*;
  * To change this template use File | Settings | File Templates.
  */
 public class RedisCacheSetQueueManager {
-    private final int queueSize;
+    private final int bufferSize;
     private final int maxPoolSize;
     private final int minPoolSize;
+    private final int queueCount;
     private long keepAliveTime = 5000;
+    private JedisPool jedisPool;
 
     LinkedBlockingQueue[] queues;
     ExecutorService[] threadPoolExecutors = null;
 
-    public RedisCacheSetQueueManager(int queueSize, int minPoolSize, int maxPoolSize, int queueNumber){
+    public RedisCacheSetQueueManager(int bufferSize, int minPoolSize, int maxPoolSize, int queueCount, JedisPool jedisPool){
         this.minPoolSize  =    minPoolSize;
         this. maxPoolSize   =   maxPoolSize;
-        this.queueSize = queueSize;
+        this.bufferSize = bufferSize;
+        this.queueCount = queueCount;
+        this.jedisPool = jedisPool;
 
-        threadPoolExecutors = new ExecutorService[queueNumber];
-        queues = new LinkedBlockingQueue[queueNumber];
+        threadPoolExecutors = new ExecutorService[this.queueCount];
+        queues = new LinkedBlockingQueue[this.queueCount];
 
         for(int i = 0; i < queues.length; i++){
-            queues[i] =  new LinkedBlockingQueue<Runnable>(this.queueSize);
+            queues[i] =  new LinkedBlockingQueue<Runnable>(this.bufferSize);
         }
 
         for(int i = 0; i < threadPoolExecutors.length; i++){
@@ -44,12 +49,8 @@ public class RedisCacheSetQueueManager {
         }
     }
 
-    public RedisCacheSetQueueManager(int queueSize, int minPoolSize, int maxPoolSize){
-        this(queueSize, minPoolSize, maxPoolSize, 50);
-    }
-
     public void addCacheWork(CacheCommand command){
-        RedisWork redisWork = new RedisWork(command);
+        RedisWork redisWork = new RedisWork(command, this.jedisPool);
         threadPoolExecutors[command.hashCode()%queues.length].execute(redisWork);
     }
 }

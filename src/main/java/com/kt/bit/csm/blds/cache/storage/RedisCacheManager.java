@@ -79,7 +79,7 @@ public class RedisCacheManager implements CacheManager {
                 throw new Exception("Fail to connect to redis cache");
             }
 
-            queue = new RedisCacheSetQueueManager(env.getBufferSize(), env.getMinPoolSize(), env.getMaxPoolSize(), env.getQueueCount());
+            queue = new RedisCacheSetQueueManager(env.getBufferSize(), env.getMinPoolSize(), env.getMaxPoolSize(), env.getQueueCount(), setPool);
         } catch(Exception e){
             // Redis Cache 접속이실패하는 경우 Cache 를 사용하지 않도록 설정함.
             this.setCacheOn(false);
