@@ -18,9 +18,14 @@ public class CachePropertyConfiguration extends AbstractConfiguration {
 	public CachePropertyConfiguration(String filename, int period) throws IOException {
 	    super(period);
 	    file = new File(filename);
-	    if (!file.exists()) {
-	      storeProperties();
-	    }
+	    
+		//Config Save only if JVM Option config file path.
+        if (file.getPath().contains("/") || file.getPath().contains("\\")) {
+    	    if (!file.exists()) {
+    		      storeProperties();
+    		    }
+        }
+	    
 	    loadProperties();
 	}
 
@@ -85,9 +90,7 @@ public class CachePropertyConfiguration extends AbstractConfiguration {
 		}
 		
 		try {
-			//Config Save only if JVM Option config file path.
-	        if (file.getPath().contains("/") || file.getPath().contains("\\"))
-	        	properties.store(new FileOutputStream(file), "Cache Configuration File is saved.");
+	        properties.store(new FileOutputStream(file), "Cache Configuration File is saved.");
 		} catch (IOException e) {
 			ConfigException.throwException(e);
 		}
