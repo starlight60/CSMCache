@@ -8,6 +8,8 @@ public class AliveChecker implements Runnable {
         this.redisCacheManager = redisCacheManager;
     }
 
+    private boolean lastStatus = true;
+
     public void run() {
 
         // Todo: Generate log
@@ -18,23 +20,15 @@ public class AliveChecker implements Runnable {
             try {
 
                 if(!redisCacheManager.ping().equalsIgnoreCase("PONG")) {
-                    redisCacheManager.setServerStatus(false);
-
-                    // Todo: Generate log
-                    System.out.println("cannot to connect the redis server, redisStatus->off");
+                    setOff();
                 } else {
-                    redisCacheManager.setServerStatus(true);
-
-                    // Todo: Generate log
-                    System.out.println("redis server back to normal, redisStatus->on");
+                    setOn();
                 }
 
-                Thread.sleep(500);
+                Thread.sleep(1000);
             } catch (Exception e) {
-                redisCacheManager.setServerStatus(false);
+                setOff();
 
-                // Todo: Generate log
-                System.out.println("cannot to connect the redis server, redisStatus->off");
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e1) {
@@ -42,6 +36,26 @@ public class AliveChecker implements Runnable {
                 }
             }
 
+        }
+    }
+
+    private void setOff() {
+        if (lastStatus) {
+            redisCacheManager.setServerStatus(false);
+            lastStatus = false;
+
+            // Todo: Generate log
+            System.out.println("cannot to connect the redis server, redisStatus->off");
+        }
+    }
+
+    private void setOn() {
+        if (!lastStatus) {
+            redisCacheManager.setServerStatus(true);
+            lastStatus = true;
+
+            // Todo: Generate log
+            System.out.println("redis server back to normal, redisStatus->on");
         }
     }
 
