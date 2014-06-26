@@ -91,7 +91,7 @@ public class DatabaseResultSet implements CSMResultSet {
 	@return int
 	@exception java.sql.SQLException - Database exception
 	**************************************************************************/
-	public Integer getInt(int i) throws SQLException {
+	public int getInt(int i) throws SQLException {
         return rs.getInt(i);
 	}
 
@@ -117,7 +117,7 @@ public class DatabaseResultSet implements CSMResultSet {
 	@return long
 	@exception java.sql.SQLException - Database exception
 	**************************************************************************/
-	public Long getLong(int i) throws SQLException {
+	public long getLong(int i) throws SQLException {
         return rs.getLong(i);
 	}
 
@@ -130,7 +130,7 @@ public class DatabaseResultSet implements CSMResultSet {
 	@return long
 	@exception java.sql.SQLException - Database exception
 	**************************************************************************/
-	public Long getLong(String string) throws SQLException {
+	public long getLong(String string) throws SQLException {
         return rs.getLong(string);
 	}
 
@@ -147,7 +147,7 @@ public class DatabaseResultSet implements CSMResultSet {
         return rs.getString(string);
 	}
 
-	public Integer getInt(String string) throws SQLException {
+	public int getInt(String string) throws SQLException {
         return rs.getInt(string);
 	}
 
