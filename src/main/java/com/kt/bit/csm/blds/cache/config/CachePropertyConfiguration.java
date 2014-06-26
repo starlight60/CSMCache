@@ -85,8 +85,7 @@ public class CachePropertyConfiguration extends AbstractConfiguration {
 			ConfigException.throwException(e);
 		}
 	}
-	
-	@Override
+
 	protected void checkForPropertyChanges() {
 		if (lastModified != file.lastModified()) {
 			isChanged = true;

@@ -57,7 +57,6 @@ public class RedisCacheSetQueueManager {
 
 class RedisCacheExceptionHandler implements RejectedExecutionHandler {
 
-    @Override
     public void rejectedExecution(Runnable runnable, ThreadPoolExecutor threadPoolExecutor) {
         RedisWork work = (RedisWork)runnable;
         System.out.println("Redis work fail to put date to cache : " + work.toString());

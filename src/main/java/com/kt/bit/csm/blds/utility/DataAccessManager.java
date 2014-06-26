@@ -124,6 +124,7 @@ public class DataAccessManager {
                 sdpResultSet = this.cacheManager.getResultSet(key);
             }
         } catch (Exception e) {
+            System.err.println(e.getMessage());
             // TODO : skip, but we should generate the log for this exception
         }
 

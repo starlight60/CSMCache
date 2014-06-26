@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
+import com.kt.bit.csm.blds.cache.CacheManager;
 import org.junit.Test;
 
 import com.kt.bit.csm.blds.cache.CacheEnvironments;
@@ -66,8 +67,8 @@ public class ConfigPropertyConfigurationTest {
 		try {
 			
 			CacheConfigManager manager = CacheConfigManager.getInstance();
-			manager.setPropertyChangeListener("cache-config", fileName1, 100);
-			manager.setPropertyChangeListener("cache-policy", fileName2, 100);
+			manager.setPropertyChangeListener("cache-config", fileName1, CacheManager.cacheConfigFileKey, 100);
+			manager.setPropertyChangeListener("cache-policy", fileName2, CacheManager.cachePolicyFileKey, 100);
 			
 			CacheEnvironments env = CacheEnvironments.getInstance();
 			RedisCacheManager rm = RedisCacheManager.getInstance();

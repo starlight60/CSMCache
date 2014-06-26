@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class RedisCacheManager implements CacheManager {
     private String  host;
     private int     port;
+    private int timeout;
     
     private AtomicBoolean cacheOn = new AtomicBoolean(false);
     public ConcurrentHashMap<String,CachePolicy> cacheTargetList = new ConcurrentHashMap<String,CachePolicy>();
@@ -53,8 +54,9 @@ public class RedisCacheManager implements CacheManager {
         Properties properties = PropertyManager.loadPropertyFromFile(redisConfigFilePath, redisConfigFileKey);
         this.host = properties.getProperty("redis.host");
         this.port = Integer.valueOf(properties.getProperty("redis.port"));
+        this.timeout = Integer.valueOf(properties.getProperty("redis.timeoutInMS"));
 
-        pool = new JedisPool(new JedisPoolConfig(), this.host, this.port);
+        pool = new JedisPool(new JedisPoolConfig(), this.host, this.port, this.timeout);
 
         // Load Cache Config, Policy Properties Files and Monitoring
         CacheConfigManager manager = CacheConfigManager.getInstance();

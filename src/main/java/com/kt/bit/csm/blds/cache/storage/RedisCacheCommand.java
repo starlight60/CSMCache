@@ -33,37 +33,30 @@ public class RedisCacheCommand implements CacheCommand {
         this.ttl = 10;
     }
 
-    @Override
     public void setKey(Object key) {
         this.key = key;
     }
 
-    @Override
     public Object getKey() {
         return key;
     }
 
-    @Override
     public void setValue(Object value) {
         this.value = value;
     }
 
-    @Override
     public Object getValue() {
         return value;
     }
 
-    @Override
     public void setCacheType(int cacheType) {
         this.cacheType = cacheType;
     }
 
-    @Override
     public int getCacheType() {
         return this.cacheType;
     }
 
-    @Override
     public void doPut(){
         Jedis jedis = null;
         RedisCacheManager cacheManager = null;
@@ -81,10 +74,9 @@ public class RedisCacheCommand implements CacheCommand {
         } finally {
             if( cacheManager != null ) cacheManager.revert(jedis);
         }
-    };
+    }
 
-    @Override
     public Object doGet(){
         return null;
-    };
+    }
 }
