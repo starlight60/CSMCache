@@ -6,6 +6,7 @@ import com.kt.bit.csm.blds.cache.CacheManager;
 import com.kt.bit.csm.blds.cache.CachePolicy;
 import com.kt.bit.csm.blds.cache.CachedResultSet;
 import com.kt.bit.csm.blds.cache.storage.RedisCacheManager;
+import com.kt.bit.csm.blds.cache.util.PropertyManager;
 import com.kt.bit.csm.blds.utility.*;
 import oracle.jdbc.OracleTypes;
 import org.junit.AfterClass;

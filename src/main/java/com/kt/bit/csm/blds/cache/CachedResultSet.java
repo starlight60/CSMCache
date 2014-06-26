@@ -70,6 +70,7 @@ public class CachedResultSet implements Serializable, CSMResultSet {
     private CacheColumn getCacheColumn(final Object i) throws SQLException {
         
         if (currentCacheRow==null) throw new SQLException("please next() call first");
+        if (i==null) throw new SQLException("i is empty");
         
         if (i instanceof Integer) {
             Integer ii = (Integer) i;
@@ -80,10 +81,10 @@ public class CachedResultSet implements Serializable, CSMResultSet {
             if (StringUtils.isEmpty(columnName)) {
                 throw new SQLException("column name invalid");
             }
-            return currentCacheRow.getColumn(columnName);
+            return currentCacheRow.getColumn(columnName.toLowerCase());
         }
         else if (i instanceof String)
-            return currentCacheRow.getColumn((String) i);
+            return currentCacheRow.getColumn(((String) i).toLowerCase());
         
         throw new SQLException("the argument must be column index or name");
 

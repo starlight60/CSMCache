@@ -4,6 +4,8 @@ package com.kt.bit.csm.blds.cache.storage;
 import com.github.jedis.lock.JedisLock;
 import com.kt.bit.csm.blds.cache.*;
 import com.kt.bit.csm.blds.cache.config.CacheConfigManager;
+import com.kt.bit.csm.blds.cache.util.DataFormatter;
+import com.kt.bit.csm.blds.cache.util.PropertyManager;
 import com.kt.bit.csm.blds.utility.*;
 
 import com.kt.bit.csm.blds.utility.serializer.GsonDataFormatter;
@@ -636,9 +638,9 @@ public class RedisCacheManager implements CacheManager {
                 while ( databaseResultSet.next() ){
                     CacheColumn[] cacheColumns = new CacheColumn[colCount];
                     for(int i=1; i <= colCount;i++){
-                        final String columnName = meta.getColumnName(i);
+                        final String columnName = meta.getColumnName(i).toLowerCase();
                         cacheColumns[i-1] = new CacheColumn(columnName, meta.getColumnType(i), databaseResultSet.getObject(i));
-                        crsm.addColumnIndex(i, columnName);
+                        crsm.addColumnIndex(i, columnName.toLowerCase());
                     }
                     cachedResultSet.addRow(cacheColumns, rowCount);
                     rowCount++;

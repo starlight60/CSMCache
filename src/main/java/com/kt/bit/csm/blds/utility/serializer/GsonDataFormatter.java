@@ -2,7 +2,7 @@ package com.kt.bit.csm.blds.utility.serializer;
 
 import com.google.gson.*;
 import com.kt.bit.csm.blds.cache.CachedResultSet;
-import com.kt.bit.csm.blds.utility.DataFormatter;
+import com.kt.bit.csm.blds.cache.util.DataFormatter;
 
 import javax.swing.text.DateFormatter;
 import java.lang.reflect.Type;
