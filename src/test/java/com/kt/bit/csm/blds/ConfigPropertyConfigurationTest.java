@@ -61,14 +61,9 @@ public class ConfigPropertyConfigurationTest {
 	
 	private void multiCase() {
 		
-		String fileName1 = "D:/dev_sdp/eclipse/cache-config.properties";
-		String fileName2 = "D:/dev_sdp/eclipse/cache-policy.properties";
-		
 		try {
 			
 			CacheConfigManager manager = CacheConfigManager.getInstance();
-			manager.setPropertyChangeListener("cache-config", fileName1, CacheManager.cacheConfigFileKey, 100);
-			manager.setPropertyChangeListener("cache-policy", fileName2, CacheManager.cachePolicyFileKey, 100);
 			
 			CacheEnvironments env = CacheEnvironments.getInstance();
 			RedisCacheManager rm = RedisCacheManager.getInstance();
@@ -124,13 +119,7 @@ public class ConfigPropertyConfigurationTest {
 	}
 	
 	private void multiCaseSystem() {
-		
-		String configKey = "cache.config.file";
-		String policyKey = "cache.policy.file";
-		
-		String fileName1 = System.getProperty(configKey);
-		String fileName2 = System.getProperty(policyKey);
-		
+				
 		try {
 			
 			CacheConfigManager manager = CacheConfigManager.getInstance();

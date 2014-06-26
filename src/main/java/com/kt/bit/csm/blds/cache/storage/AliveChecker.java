@@ -8,7 +8,6 @@ public class AliveChecker implements Runnable {
         this.redisCacheManager = redisCacheManager;
     }
 
-    @Override
     public void run() {
 
         // Todo: Generate log
