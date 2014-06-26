@@ -78,13 +78,14 @@ public class RedisCacheManager implements CacheManager {
         manager.setPropertyChangeListener("cache-policy", cachePolicyFilePath, cachePolicyFileKey, 60000);
 
         env = CacheEnvironments.getInstance();
+        queue = new RedisCacheSetQueueManager(env.getBufferSize(), env.getMinPoolSize(), env.getMaxPoolSize(), env.getQueueCount(), setPool);
 
         try {
             if(!this.ping().equalsIgnoreCase("PONG")){
                 throw new Exception("Fail to connect to redis cache");
             }
 
-            queue = new RedisCacheSetQueueManager(env.getBufferSize(), env.getMinPoolSize(), env.getMaxPoolSize(), env.getQueueCount(), setPool);
+
         } catch(Exception e){
             // Redis Cache 접속이실패하는 경우 Cache 를 사용하지 않도록 설정함.
             this.setCacheOn(false);

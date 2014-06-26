@@ -47,7 +47,7 @@ public class AsynchCachePutTest extends AbstractBenchmark {
     }
 
 
-    @BenchmarkOptions(benchmarkRounds = 1000000, warmupRounds = 2, concurrency = 2)
+//    @BenchmarkOptions(benchmarkRounds = 1000000, warmupRounds = 2, concurrency = 2)
     @Test
     public void asynchCachePut(){
         try{

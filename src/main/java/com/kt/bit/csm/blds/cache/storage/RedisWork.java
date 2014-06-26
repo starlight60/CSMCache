@@ -29,16 +29,19 @@ public class RedisWork implements Runnable  {
 
     public void processCommand() throws Exception {
         Jedis jedis = null;
-        try{
-            if( command instanceof RedisCacheCommand){
-                RedisCacheCommand redisCacheCommand = (RedisCacheCommand)command;
-                jedis = this.borrow();
-                redisCacheCommand.setJedis(jedis);
-                command.doPut();
+        RedisCacheManager rcm = RedisCacheManager.getInstance();
+        if( rcm != null && rcm.isCacheOn() && rcm.isServerStatusOn()){
+            try{
+                if( command instanceof RedisCacheCommand){
+                    RedisCacheCommand redisCacheCommand = (RedisCacheCommand)command;
+                    jedis = this.borrow();
+                    redisCacheCommand.setJedis(jedis);
+                    command.doPut();
+                }
+                else throw new Exception("Redis Cache Work can only Redis job");
+            }finally {
+                if(jedis != null) this.revert(jedis);
             }
-            else throw new Exception("Redis Cache Work can only Redis job");
-        }finally {
-            if(jedis != null) this.revert(jedis);
         }
     }
 
