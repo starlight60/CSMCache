@@ -38,9 +38,9 @@ public class JDBCTypeMappingUtil {
         return bytes;
     }
 
-    public static Integer _getInt(final CacheColumn cacheColumn) throws SQLException {
+    public static int _getInt(final CacheColumn cacheColumn) throws SQLException {
         final Object value = fromColumn(cacheColumn);
-        if (value == null) return null;
+        if (value == null) return 0;
         else if( value instanceof BigDecimal) {
             return ((BigDecimal) value).intValue();
         } else if (value instanceof Double) {
@@ -50,9 +50,9 @@ public class JDBCTypeMappingUtil {
         else throw new SQLException( "type mismatch in cachedResultSet (expected int, but "+value.getClass().getName()+", (value:"+value+"))" );
     }
 
-    public static Long _getLong(final CacheColumn cacheColumn) throws SQLException {
+    public static long _getLong(final CacheColumn cacheColumn) throws SQLException {
         final Object value = fromColumn(cacheColumn);
-        if (value == null) return null;
+        if (value == null) return 0;
         else if( value instanceof BigDecimal)
             return ((BigDecimal) value).longValue();
         else if (value instanceof Long)

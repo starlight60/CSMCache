@@ -1,7 +1,7 @@
 package com.kt.bit.csm.blds.utility.serializer;
 
 import com.kt.bit.csm.blds.cache.CachedResultSet;
-import com.kt.bit.csm.blds.utility.DataFormatter;
+import com.kt.bit.csm.blds.cache.util.DataFormatter;
 import org.boon.Boon;
 
 import javax.swing.text.DateFormatter;

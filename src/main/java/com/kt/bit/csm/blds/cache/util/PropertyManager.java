@@ -1,4 +1,4 @@
-package com.kt.bit.csm.blds.utility;
+package com.kt.bit.csm.blds.cache.util;
 
 import org.apache.commons.lang.StringUtils;
 

@@ -6,6 +6,7 @@ import com.kt.bit.csm.blds.cache.CacheManager;
 import com.kt.bit.csm.blds.cache.CachePolicy;
 import com.kt.bit.csm.blds.cache.CachedResultSet;
 import com.kt.bit.csm.blds.cache.storage.RedisCacheManager;
+import com.kt.bit.csm.blds.cache.util.DataFormatter;
 import com.kt.bit.csm.blds.utility.*;
 import com.kt.bit.csm.blds.utility.serializer.GsonDataFormatter;
 import oracle.jdbc.OracleTypes;

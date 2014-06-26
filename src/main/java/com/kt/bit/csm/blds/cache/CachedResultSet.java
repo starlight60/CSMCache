@@ -70,6 +70,7 @@ public class CachedResultSet implements Serializable, CSMResultSet {
     private CacheColumn getCacheColumn(final Object i) throws SQLException {
         
         if (currentCacheRow==null) throw new SQLException("please next() call first");
+        if (i==null) throw new SQLException("i is empty");
         
         if (i instanceof Integer) {
             Integer ii = (Integer) i;
@@ -80,10 +81,10 @@ public class CachedResultSet implements Serializable, CSMResultSet {
             if (StringUtils.isEmpty(columnName)) {
                 throw new SQLException("column name invalid");
             }
-            return currentCacheRow.getColumn(columnName);
+            return currentCacheRow.getColumn(columnName.toLowerCase());
         }
         else if (i instanceof String)
-            return currentCacheRow.getColumn((String) i);
+            return currentCacheRow.getColumn(((String) i).toLowerCase());
         
         throw new SQLException("the argument must be column index or name");
 
@@ -97,19 +98,19 @@ public class CachedResultSet implements Serializable, CSMResultSet {
         return _getString(getCacheColumn(name));
     }
 
-    public Integer getInt(int idx) throws SQLException{
+    public int getInt(int idx) throws SQLException{
         return _getInt(getCacheColumn(idx));
     }
 
-    public Integer getInt(String name) throws SQLException{
+    public int getInt(String name) throws SQLException{
         return _getInt(getCacheColumn(name));
     }
 
-    public Long getLong(int idx) throws SQLException{
+    public long getLong(int idx) throws SQLException{
         return _getLong(getCacheColumn(idx));
     }
 
-    public Long getLong(String name) throws SQLException{
+    public long getLong(String name) throws SQLException{
         return _getLong(getCacheColumn(name));
     }
 
