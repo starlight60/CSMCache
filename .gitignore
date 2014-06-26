@@ -1,3 +1,6 @@
 .idea
 *.iml
 target/*
+cache-config*
+cache-policy*
+*.rdb
