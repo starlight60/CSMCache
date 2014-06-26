@@ -90,6 +90,11 @@ public class RedisCacheManager implements CacheManager {
 
         common = PropertyManager.loadPropertyFromFile(cacheConfigFilePath, cacheConfigFileKey);
         JDBCTypeMappingUtil.init(common);
+
+        // Alive cheker
+        AliveChecker aliveChecker = new AliveChecker(this);
+        Thread aliveCheckerThread = new Thread(aliveChecker);
+        aliveCheckerThread.start();
     }
 
     private RedisCacheManager() throws IOException, NumberFormatException {
