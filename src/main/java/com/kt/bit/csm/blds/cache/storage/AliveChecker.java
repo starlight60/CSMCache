@@ -19,15 +19,15 @@ public class AliveChecker implements Runnable {
             try {
 
                 if(!redisCacheManager.ping().equalsIgnoreCase("PONG")) {
-                    redisCacheManager.setCacheOn(false);
+                    redisCacheManager.setServerStatus(false);
 
                     // Todo: Generate log
-                    System.out.println("cannot to connect the redis server, cache->off");
+                    System.out.println("cannot to connect the redis server, redisStatus->off");
                 } else {
-                    redisCacheManager.setCacheOn(true);
+                    redisCacheManager.setServerStatus(true);
 
                     // Todo: Generate log
-                    System.out.println("redis server back to normal, cache->on");
+                    System.out.println("redis server back to normal, redisStatus->on");
                 }
 
                 Thread.sleep(500);

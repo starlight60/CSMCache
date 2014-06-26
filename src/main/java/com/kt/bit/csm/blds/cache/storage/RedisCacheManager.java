@@ -30,6 +30,8 @@ public class RedisCacheManager implements CacheManager {
     private int writeTimeout;
     
     private AtomicBoolean cacheOn = new AtomicBoolean(false);
+    private AtomicBoolean serverStatus = new AtomicBoolean(true);
+
     public ConcurrentHashMap<String,CachePolicy> cacheTargetList = new ConcurrentHashMap<String,CachePolicy>();
     public static RedisCacheManager instance = null;
 
@@ -931,4 +933,11 @@ public class RedisCacheManager implements CacheManager {
         return common;
     }
 
+    public boolean isServerStatusOn() {
+        return serverStatus.get();
+    }
+
+    public void setServerStatus(boolean serverStatus) {
+        this.serverStatus.set(serverStatus);
+    }
 }

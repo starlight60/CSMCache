@@ -67,4 +67,6 @@ public interface CacheManager {
     public boolean isCacheOn();
 
     public void setCacheOn(boolean cacheOn);
+
+    public boolean isServerStatusOn();
 }
