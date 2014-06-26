@@ -69,7 +69,7 @@ public class CachedResultSet implements Serializable, CSMResultSet {
     
     private CacheColumn getCacheColumn(final Object i) throws SQLException {
         
-        if (currentCacheRow==null) throw new SQLException("please next() call first");
+        if (currentCacheRow==null) throw new SQLException("please next() call first or closed already");
         if (i==null) throw new SQLException("i is empty");
         
         if (i instanceof Integer) {
@@ -153,6 +153,10 @@ public class CachedResultSet implements Serializable, CSMResultSet {
 
     public void close() throws SQLException {
         cacheRows.clear();
+        currentCacheRow = null;
+        currentIndex = 1;
+        metaData = null;
+        iterator = null;
     }
 
     public boolean last(){
