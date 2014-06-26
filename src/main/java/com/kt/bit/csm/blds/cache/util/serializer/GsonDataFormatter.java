@@ -1,4 +1,4 @@
-package com.kt.bit.csm.blds.utility.serializer;
+package com.kt.bit.csm.blds.cache.util.serializer;
 
 import com.google.gson.*;
 import com.kt.bit.csm.blds.cache.CachedResultSet;

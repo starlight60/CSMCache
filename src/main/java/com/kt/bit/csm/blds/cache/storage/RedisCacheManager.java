@@ -6,9 +6,9 @@ import com.kt.bit.csm.blds.cache.*;
 import com.kt.bit.csm.blds.cache.config.CacheConfigManager;
 import com.kt.bit.csm.blds.cache.util.DataFormatter;
 import com.kt.bit.csm.blds.cache.util.PropertyManager;
+import com.kt.bit.csm.blds.cache.util.serializer.GsonDataFormatter;
 import com.kt.bit.csm.blds.utility.*;
 
-import com.kt.bit.csm.blds.utility.serializer.GsonDataFormatter;
 import org.apache.commons.lang.StringUtils;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;

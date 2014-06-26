@@ -9,7 +9,7 @@ import com.kt.bit.csm.blds.cache.CachedResultSet;
 import com.kt.bit.csm.blds.cache.storage.RedisCacheManager;
 import com.kt.bit.csm.blds.cache.util.DataFormatter;
 import com.kt.bit.csm.blds.utility.*;
-import com.kt.bit.csm.blds.utility.serializer.GsonDataFormatter;
+import com.kt.bit.csm.blds.cache.util.serializer.GsonDataFormatter;
 import com.sun.xml.internal.messaging.saaj.util.ByteInputStream;
 import oracle.jdbc.OracleTypes;
 import org.junit.AfterClass;

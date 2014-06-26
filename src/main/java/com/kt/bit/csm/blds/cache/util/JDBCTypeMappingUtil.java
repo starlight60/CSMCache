@@ -7,10 +7,13 @@ import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 
 public class JDBCTypeMappingUtil {
+
+    public static String dateFormat = "yyyy-mm-dd hh:mm:ss";
 
     public static String _getString(final CacheColumn cacheColumn) throws SQLException {
         final Object value = fromColumn(cacheColumn);
@@ -19,9 +22,23 @@ public class JDBCTypeMappingUtil {
             return (String)value;
         else if (value instanceof List)
             return RepConversion.bArray2String(listToArray((List) value));
+        else if (value instanceof Integer)
+            return String.valueOf(value);
+        else if (value instanceof Long)
+            return String.valueOf(value);
+        else if (value instanceof Double)
+            return String.valueOf(value);
+        else if (value instanceof Float)
+            return String.valueOf(value);
+        else if (value instanceof BigDecimal)
+            return String.valueOf(value);
+        else if (value instanceof Timestamp)
+            return new SimpleDateFormat(dateFormat).format((Timestamp) value);
         else if (value instanceof byte[])
             return RepConversion.bArray2String((byte[]) value);
-        else throw new SQLException( "type mismatch in cachedResultSet (expected String, but "+value.getClass().getName()+", (value:"+value+"))" );
+        else {
+            return value.toString();
+        }
     }
 
     private static byte[] listToArray(final List value) {
@@ -45,6 +62,10 @@ public class JDBCTypeMappingUtil {
             return ((BigDecimal) value).intValue();
         } else if (value instanceof Double) {
             return ((Double) value).intValue();
+        } else if (value instanceof Float) {
+            return ((Float) value).intValue();
+        } else if (value instanceof Long) {
+            return ((Long) value).intValue();
         } else if (value instanceof Integer)
             return (Integer) value;
         else throw new SQLException( "type mismatch in cachedResultSet (expected int, but "+value.getClass().getName()+", (value:"+value+"))" );
@@ -55,12 +76,14 @@ public class JDBCTypeMappingUtil {
         if (value == null) return 0;
         else if( value instanceof BigDecimal)
             return ((BigDecimal) value).longValue();
+        else if (value instanceof Double)
+            return ((Double) value).longValue();
+        else if (value instanceof Float)
+            return ((Float) value).longValue();
         else if (value instanceof Long)
             return (Long) value;
         else if (value instanceof Integer)
             return ((Integer) value).longValue();
-        else if (value instanceof Double)
-            return ((Double) value).longValue();
         else throw new SQLException( "type mismatch in cachedResultSet (expected Long, but "+value.getClass().getName()+", (value:"+value+"))" );
     }
 
