@@ -27,10 +27,11 @@ public class CachePropertyConfiguration extends AbstractConfiguration {
 	private void loadProperties() throws IOException {
 		Properties properties = new Properties();
 
-		System.out.println("File ABS Path : " + file.getAbsolutePath());
-		System.out.println("File Path : " + file.getPath());
-		System.out.println("File Name : " + file.getName());
+//		System.out.println("File ABS Path : " + file.getAbsolutePath());
+//		System.out.println("File Path : " + file.getPath());
+//		System.out.println("File Name : " + file.getName());
 		
+		//JVM Option config file
         if (file.getPath().contains("/") || file.getPath().contains("\\"))
             properties.load(new FileInputStream(file));
         else
@@ -84,7 +85,9 @@ public class CachePropertyConfiguration extends AbstractConfiguration {
 		}
 		
 		try {
-			properties.store(new FileOutputStream(file), "Cache Configuration File is saved.");
+			//Config Save only if JVM Option config file path.
+	        if (file.getPath().contains("/") || file.getPath().contains("\\"))
+	        	properties.store(new FileOutputStream(file), "Cache Configuration File is saved.");
 		} catch (IOException e) {
 			ConfigException.throwException(e);
 		}
