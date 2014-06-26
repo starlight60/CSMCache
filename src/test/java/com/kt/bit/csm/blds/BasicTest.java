@@ -56,7 +56,7 @@ public class BasicTest {
 
     @Test
     public void tryToGetCache() throws Exception {
-
+        Thread.sleep(50000);
         // Make cache
         DataAccessManager dam = new DataAccessManager();
         CSMResultSet rs = dam.executeStoredProcedureForQuery(spName, returnParamName, param);

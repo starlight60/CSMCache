@@ -31,7 +31,15 @@ public class AliveChecker implements Runnable {
 
                 Thread.sleep(500);
             } catch (Exception e) {
-                // Skip
+                redisCacheManager.setServerStatus(false);
+
+                // Todo: Generate log
+                System.out.println("cannot to connect the redis server, redisStatus->off");
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e1) {
+                    // Skip
+                }
             }
 
         }
