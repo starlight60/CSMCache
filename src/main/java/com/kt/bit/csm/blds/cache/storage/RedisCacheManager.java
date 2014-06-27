@@ -884,7 +884,7 @@ public class RedisCacheManager implements CacheManager {
     public void addCachePolicy(String spName, CachePolicy policy) {
         cacheTargetList.put(spName, policy);
     }
-
+    
     public void addCachePolicy(String spName, boolean isCacheTarget, boolean isMultiRow, int maxCount) {
 
         CachePolicy policy = new CachePolicy();

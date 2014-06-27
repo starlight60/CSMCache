@@ -2,9 +2,11 @@ package com.kt.bit.csm.blds.cache.config;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 import com.kt.bit.csm.blds.cache.CachePolicy;
@@ -12,33 +14,65 @@ import com.kt.bit.csm.blds.cache.storage.RedisCacheManager;
 
 public class CachePropertyConfiguration extends AbstractConfiguration {
 
-	private final File file;
+	private File file;
 	private long lastModified = 0;
 	
-	public CachePropertyConfiguration(String filename, int period) throws IOException {
+	private void init(String filename) {
+		
+		try {
+			
+		    file = new File(filename);
+
+			//Config Save only if JVM Option config file path.
+	        if (file.getPath().contains("/") || file.getPath().contains("\\")) {
+	    	    if (!file.exists()) {
+	    		      storeProperties();
+	    		    }
+	        }
+		    
+			loadProperties();
+					    
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+		}
+	    
+	}
+	
+	public CachePropertyConfiguration(String filename, int period) {
 	    super(period);
-	    file = new File(filename);
-	    
-		//Config Save only if JVM Option config file path.
-        if (file.getPath().contains("/") || file.getPath().contains("\\")) {
-    	    if (!file.exists()) {
-    		      storeProperties();
-    		    }
-        }
-	    
-	    loadProperties();
+	    init(filename);
 	}
 
-	private void loadProperties() throws IOException {
+	private void loadProperties() {
 		Properties properties = new Properties();
 
 		//JVM Option config file
-        if (file.getPath().contains("/") || file.getPath().contains("\\"))
-            properties.load(new FileInputStream(file));
-        else
-            properties.load(Thread.currentThread().getContextClassLoader().getResourceAsStream(file.getName()));
+        if (file.getPath().contains("/") || file.getPath().contains("\\")) {
+            try {
+				properties.load(new FileInputStream(file));
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        }
+        else {
+            try {
+				properties.load(Thread.currentThread().getContextClassLoader().getResourceAsStream(file.getName()));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        }
 
-		setAllProperties(properties);
+		try {
+			setAllProperties(properties);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private void setAllProperties(Properties properties) throws IOException {
@@ -46,7 +80,13 @@ public class CachePropertyConfiguration extends AbstractConfiguration {
 		// Cache Policy Check
 		if (properties.containsKey("sp.names")) {
 			
-			String[] spNames = properties.getProperty("sp.names").split(",");
+			String spNamesKey = properties.getProperty("sp.names");
+			if (spNamesKey == null || spNamesKey.isEmpty()) {
+				System.out.println("Does not exists Stored Procedures in Property File.");
+				return;
+			}
+			
+			String[] spNames = spNamesKey.split(",");
 			RedisCacheManager manager = RedisCacheManager.getInstance();
 			
 			String target = "";
@@ -55,6 +95,20 @@ public class CachePropertyConfiguration extends AbstractConfiguration {
 			String multiRow = "";
 			String ttl = "";
 			
+			//Check Removed Policy and Remove at memory
+			@SuppressWarnings("unchecked")
+			Map<String, CachePolicy> policies = manager.getCachePolicies();
+			String key = "";
+			
+			for (Entry<String, CachePolicy> policy : policies.entrySet()) {
+				key = policy.getKey();
+				
+				if (!spNamesKey.contains(key)) {
+					manager.delCachePolicy(key);
+				}
+			}
+			
+			//Add Policies
 			for (String spName : spNames) {
 				
 				target = properties.getProperty(spName.concat(".target"), "true");
@@ -95,12 +149,8 @@ public class CachePropertyConfiguration extends AbstractConfiguration {
 	protected void checkForPropertyChanges() {
 		if (lastModified != file.lastModified()) {
 			isChanged = true;
-			try {
-				lastModified = file.lastModified();
-				loadProperties();				
-			} catch (IOException e) {
-				ConfigException.throwException(e);
-			}
+			lastModified = file.lastModified();
+			loadProperties();
 		}
 	}
 
