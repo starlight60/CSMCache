@@ -16,6 +16,7 @@ public class CachePropertyConfiguration extends AbstractConfiguration {
 
 	private File file;
 	private long lastModified = 0;
+	private final long fileSizeLimit = 1024 * 1024 * 10; //10M
 	
 	private void init(String filename) {
 		
@@ -46,6 +47,16 @@ public class CachePropertyConfiguration extends AbstractConfiguration {
 	private void loadProperties() {
 		Properties properties = new Properties();
 
+		//Check Property File Size
+		if (file.isFile() && file.exists()) {
+			long size = file.length();
+			
+			if (size > fileSizeLimit) {
+				System.out.println("Proeprty File Size cannot over 10M.");
+				return;
+			}
+		}
+		
 		//JVM Option config file
         if (file.getPath().contains("/") || file.getPath().contains("\\")) {
             try {
