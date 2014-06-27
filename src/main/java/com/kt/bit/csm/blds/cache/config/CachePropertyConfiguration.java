@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
+import com.kt.bit.csm.blds.cache.CacheFetchConstants;
 import com.kt.bit.csm.blds.cache.CachePolicy;
 import com.kt.bit.csm.blds.cache.storage.RedisCacheManager;
 
@@ -16,7 +17,6 @@ public class CachePropertyConfiguration extends AbstractConfiguration {
 
 	private File file;
 	private long lastModified = 0;
-	private final long fileSizeLimit = 1024 * 1024 * 10; //10M
 	
 	private void init(String filename) {
 		
@@ -51,7 +51,7 @@ public class CachePropertyConfiguration extends AbstractConfiguration {
 		if (file.isFile() && file.exists()) {
 			long size = file.length();
 			
-			if (size > fileSizeLimit) {
+			if (size > CacheFetchConstants.FETCH_FILE_SIZE_LIMIT) {
 				System.out.println("Proeprty File Size cannot over 10M.");
 				return;
 			}
@@ -93,7 +93,7 @@ public class CachePropertyConfiguration extends AbstractConfiguration {
 			
 			String spNamesKey = properties.getProperty("sp.names");
 			if (spNamesKey == null || spNamesKey.isEmpty()) {
-				System.out.println("Does not exists Stored Procedures in Property File.");
+				System.out.println("Does not exist Cached Stored Procedures in Property File.");
 				return;
 			}
 			

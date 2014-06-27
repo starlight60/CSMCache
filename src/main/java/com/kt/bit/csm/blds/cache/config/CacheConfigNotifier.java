@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import com.kt.bit.csm.blds.cache.CacheEnvironments;
+import com.kt.bit.csm.blds.cache.CacheFetchConstants;
 import com.kt.bit.csm.blds.cache.storage.RedisCacheManager;
 
 public class CacheConfigNotifier {
@@ -70,6 +71,17 @@ public class CacheConfigNotifier {
 		//Properties Loading...
 		Properties configuration = null;
 		File file = path.toFile();
+		
+		if (file.exists()) {
+			long size = file.length();
+			
+			if (size > CacheFetchConstants.FETCH_FILE_SIZE_LIMIT) {
+				System.out.println("Property File Size cannot over 10M.");
+				return configuration;
+			}
+			
+		}
+		
 		InputStream in = null;
 		try {
 			configuration = new Properties();
@@ -86,7 +98,7 @@ public class CacheConfigNotifier {
 		return configuration;
 	}
 	
-	public static void watch(String dir) throws IOException, InterruptedException {
+	public static void watch(String dir) {
 		
 		Path path = Paths.get(dir);	// Get the directory to be monitored
 		
@@ -101,60 +113,71 @@ public class CacheConfigNotifier {
 			ioe.printStackTrace();
 		}
 		
-		// We obtain the file system of the Path
-		WatchService service = FileSystems.getDefault().newWatchService();	// Create a WatchService
-		path.register(service, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE);	// Register the directory
-		
-		// Start the infinite polling loop
-		WatchKey key = null;
-		
-		while(true) {
+		try {
 			
-			key = service.take();	// retrieve the watchkey
+			// Create a WatchService
+			WatchService service = FileSystems.getDefault().newWatchService();
 			
-			// Dequeueing events
-			Kind<?> kind = null;
-			for (WatchEvent<?> watchEvent : key.pollEvents()) {
+			path.register(service, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE);	// Register the directory
+			
+			// Start the infinite polling loop
+			WatchKey key = null;
+			
+			while(true) {
 				
-				// Get the type of the event
-				kind = watchEvent.kind();
+				key = service.take();	// retrieve the watchkey
 				
-				if (kind == StandardWatchEventKinds.OVERFLOW) {
-					continue;
-				} else if (StandardWatchEventKinds.ENTRY_CREATE == kind) {
-					// A new Path was created 
-					Path newPath = ((WatchEvent<Path>) watchEvent).context();
-					System.out.println("New path created: " + newPath);
+				// Dequeueing events
+				Kind<?> kind = null;
+				for (WatchEvent<?> watchEvent : key.pollEvents()) {
 					
-					//Properties Loading...
-					Properties configuration = readProperties(newPath);
+					// Get the type of the event
+					kind = watchEvent.kind();
 					
-					//Properties Setting....
-					setProperties(configuration);
-					
-				} else if (StandardWatchEventKinds.ENTRY_MODIFY == kind) {
-					// A Path was modified 
-					Path modifiedPath = ((WatchEvent<Path>) watchEvent).context();
-					System.out.println("Modified path: " + modifiedPath);
-					
-					//Properties Loading...
-					Properties configuration = readProperties(modifiedPath);
-					
-					//Properties Setting....
-					setProperties(configuration);
-					
-				} else if (StandardWatchEventKinds.ENTRY_DELETE == kind) {
-					// A Path was modified 
-					Path deletedPath = ((WatchEvent<Path>) watchEvent).context();
-					System.out.println("Deleted path: " + deletedPath);					
+					if (kind == StandardWatchEventKinds.OVERFLOW) {
+						continue;
+					} else if (StandardWatchEventKinds.ENTRY_CREATE == kind) {
+						// A new Path was created 
+						Path newPath = ((WatchEvent<Path>) watchEvent).context();
+						System.out.println("New path created: " + newPath);
+						
+						//Properties Loading...
+						Properties configuration = readProperties(newPath);
+						
+						//Properties Setting....
+						setProperties(configuration);
+						
+					} else if (StandardWatchEventKinds.ENTRY_MODIFY == kind) {
+						// A Path was modified 
+						Path modifiedPath = ((WatchEvent<Path>) watchEvent).context();
+						System.out.println("Modified path: " + modifiedPath);
+						
+						//Properties Loading...
+						Properties configuration = readProperties(modifiedPath);
+						
+						//Properties Setting....
+						setProperties(configuration);
+						
+					} else if (StandardWatchEventKinds.ENTRY_DELETE == kind) {
+						// A Path was delete 
+						Path deletedPath = ((WatchEvent<Path>) watchEvent).context();
+						System.out.println("Deleted path: " + deletedPath);					
+					}
+				}
+				
+				boolean valid = key.reset();
+				
+				if (!valid) {
+					break;
 				}
 			}
 			
-			boolean valid = key.reset();
-			
-			if (!valid) {
-				break;
-			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		
 	}
